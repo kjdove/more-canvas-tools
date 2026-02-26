@@ -16,6 +16,17 @@ const STYLESHEETS = {
                z-index: 10 !important;
         }
 
+        /*insights*/
+        .insights-button {
+           background-color: #abcdef;
+            border-radius: 0.5rem;
+            border-color: transparent;
+        }
+        .insights-button:hover {
+            background-color: #89abcd;
+            border-color: transparent;
+        }
+
         `,
     }),
 } as const;
