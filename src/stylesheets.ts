@@ -12,9 +12,8 @@ const STYLESHEETS = {
         }
             
         /*nowline z-index*/
-        .fc-time-grid .fc-slats {
+        .fc-time-grid .fc-slats{
                z-index: 10 !important;
-               position: relative !important;
         }
 
         `,
