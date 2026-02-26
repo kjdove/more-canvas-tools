@@ -9,8 +9,14 @@ const STYLESHEETS = {
         .ui-widget-overlay {
                background-color: transparent;
                background: transparent;
-           }
+        }
             
+        /*nowline z-index*/
+        .fc-time-grid .fc-slats {
+               z-index: 10 !important;
+               position: relative !important;
+        }
+
         `,
     }),
 } as const;
