@@ -5,6 +5,11 @@ const STYLESHEETS = {
     main: stylesheet({
         condition: ALWAYS,
         css: `
+        /*background when event modal form is open*/
+        .ui-widget-overlay {
+               background-color: transparent;
+               background: transparent;
+           }
             
         `,
     }),
