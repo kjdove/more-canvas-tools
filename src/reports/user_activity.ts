@@ -216,6 +216,7 @@ export function loadUserActivityReport() {
             addMeter(getAll($.get, "users", { 'enrollment_type[]': ['ta', 'teacher'] }), "Staff"),
             addMeter(getAll($.get, "assignments", {}), "Assignments")
         ).done(prepareDownloadBuildButton);
+        console.log('kjdove');
     });
 
 
