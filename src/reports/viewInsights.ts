@@ -1,3 +1,5 @@
+import { startDialog } from "~src/canvas/dialog";
+
 const VIEW_INSIGHTS_BUTTON = `
 <div style="display:inline-block; margin-left: 10px;">
  <button
@@ -10,7 +12,8 @@ const VIEW_INSIGHTS_BUTTON = `
 `;
 
 const INSIGHTS_DIALOG = `
-
+<div id="cwu-insights-dialog" title="Weekly Insights" style="display:none;">
+    <iframe id="cwu-insights-iframe" src="" width="100%" height="400px" frameborder="0"></iframe>
 `;
 
 export function loadInsightsReport() {
@@ -19,4 +22,7 @@ export function loadInsightsReport() {
        header.append(VIEW_INSIGHTS_BUTTON);
        console.log("Insights button added");
    }
+   $("#cwu-view-insights-load").click(() => {
+        startDialog("Weekly Insights", INSIGHTS_DIALOG);
+   });
 }
