@@ -22,7 +22,23 @@ export function loadInsightsReport() {
        header.append(VIEW_INSIGHTS_BUTTON);
        console.log("Insights button added");
    }
+
+   //get current week
+   const currentDate = new Date();
+   console.log("Current date:", currentDate);
+   const startOfWeek = new Date(currentDate);
+   startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); 
+   console.log("Start of week:", startOfWeek);
+   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+   const currentMonth = startOfWeek.getMonth(); 
+   const currentSunday = startOfWeek.getDate();
+   const currentYear = startOfWeek.getFullYear();
+   console.log("Current month:", currentMonth);
+   console.log("Current Sunday date:", currentSunday);
+
+   const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
+
    $("#cwu-view-insights-load").click(() => {
-        startDialog("Weekly Insights", INSIGHTS_DIALOG);
+        startDialog(`Weekly Insights - Week of ${currentWeek}`, INSIGHTS_DIALOG);
    });
 }
