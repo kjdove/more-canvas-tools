@@ -70,15 +70,13 @@ function waitForCalendarEvents(callback: { (): void; (): void; }) {
             clearInterval(interval);
             callback();
         }
-    }, 200); // check every 200ms
+    }, 200);
 }
 
-// Usage:
 waitForCalendarEvents(() => {
     const events = $(".fc-day-grid-event");
     console.log("Events now exist:", events.length);
 });
-
 
 function getCurrentWeekEvents() {
     const weekRow = $(".fc-day.fc-today").closest(".fc-row.fc-week");
@@ -86,11 +84,27 @@ function getCurrentWeekEvents() {
     return events;
 }
 
-// Use with polling:
+function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
+    const summary: { [key: string]: number } = {};
+
+    events.each((_, el) => {
+        const classes = el.className.split(/\s+/);
+        const courseClass = classes.find(c => c.startsWith("group_course_") || c.startsWith("group_user_"));
+        if (!courseClass) return;
+
+        if (!summary[courseClass]) summary[courseClass] = 0;
+        summary[courseClass]++;
+    });
+
+    return summary;
+}
+
 waitForCalendarEvents(() => {
     const events = getCurrentWeekEvents();
     console.log("Current week events:", events?.length);
     console.log("Current week events details:", events);
+    const weeklySummary = summarizeEventsByCourse(events);
+    console.log("Weekly summary by course:", weeklySummary);
 });
 
 
