@@ -1,5 +1,9 @@
+/**
+ * viewInsights.ts
+ * users should be able to view weekly insights for their courses and personal calendar
+ * - insights should be available for the current week and update as the week changes
+ */
 import { startDialog } from "~src/canvas/dialog";
-import { Course } from "~src/canvas/interfaces";
 
 const VIEW_INSIGHTS_BUTTON = `
 <div style="display:inline-block; margin-left: 10px;">
@@ -19,23 +23,20 @@ const INSIGHTS_DIALOG = `
 `;
 
 
-function getSelectedCoursesLegend() {
+export function getSelectedCourses() {
   const courses: { name: string; courseId: string }[] = [];
 
   $(".context_list_context.checked").each((_, el) => {
     const $el = $(el);
     const name = $el.find("label").text().trim();
     const courseId = $el.data("context");
-   
     courses.push({ name, courseId });
     });
-
-  console.log("Selected courses for legend:", courses);
   return courses;
-}
+}//end to getSelectedCourses
 
 function buildLegendHTML() {
-    const courses = getSelectedCoursesLegend();
+    const courses = getSelectedCourses();
 
     if (!courses.length) {
         return `<p>No courses currently toggled on.</p>`;
@@ -61,7 +62,9 @@ function buildLegendHTML() {
                 .join("")}
         </div>
     `;
-}
+}//end to buildLegendHTML
+
+
 
 
 export function loadInsightsReport() {
@@ -70,9 +73,9 @@ export function loadInsightsReport() {
        header.append(VIEW_INSIGHTS_BUTTON);
        console.log("Insights button added");
    }
-
+   
    const currentDate = new Date();
-  //  console.log("Current date:", currentDate);
+//    console.log("Current date:", currentDate);
    const startOfWeek = new Date(currentDate);
    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); 
   //  console.log("Start of week:", startOfWeek);
@@ -83,9 +86,11 @@ export function loadInsightsReport() {
   //  console.log("Current month:", currentMonth);
   //  console.log("Current Sunday date:", currentSunday);
 
-   const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
-
-   const legendHTML = buildLegendHTML();
+    const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
+//  const x = `${currentYear}-0${currentMonth + 1}-${currentSunday}`;
+     const selectedCourses = getSelectedCourses();
+     console.log("Selected courses for insights:", selectedCourses);
+    const legendHTML = buildLegendHTML();
    $("#cwu-view-insights-load").click(() => {
     const innerHTML = `
         ${legendHTML}
