@@ -35,34 +35,34 @@ export function getSelectedCourses() {
   return courses;
 }//end to getSelectedCourses
 
-function buildLegendHTML() {
-    const courses = getSelectedCourses();
+// function buildLegendHTML() {
+//     const courses = getSelectedCourses();
 
-    if (!courses.length) {
-        return `<p>No courses currently toggled on.</p>`;
-    }
+//     if (!courses.length) {
+//         return `<p>No courses currently toggled on.</p>`;
+//     }
 
-    return `
-        <div style="margin-bottom:15px;">
-            <h3>Legend:</h3>
-            ${courses
-                .map(
-                    (course) => `
-                <div style="display:flex; align-items:center; margin-bottom:6px;">
-                    <div class= "group_${course.courseId}"  style="
-                        width:14px;
-                        height:14px;
-                        margin-right:8px;
-                        border-radius:3px;">
-                    </div>
-                    <span>${course.name}</span>
-                </div>
-            `
-                )
-                .join("")}
-        </div>
-    `;
-}//end to buildLegendHTML
+//     return `
+//         <div style="margin-bottom:15px;">
+//             <h3>Legend:</h3>
+//             ${courses
+//                 .map(
+//                     (course) => `
+//                 <div style="display:flex; align-items:center; margin-bottom:6px;">
+//                     <div class= "group_${course.courseId}"  style="
+//                         width:14px;
+//                         height:14px;
+//                         margin-right:8px;
+//                         border-radius:3px;">
+//                     </div>
+//                     <span>${course.name}</span>
+//                 </div>
+//             `
+//                 )
+//                 .join("")}
+//         </div>
+//     `;
+// }//end to buildLegendHTML
 
 function waitForCalendarEvents(callback: { (): void; (): void; }) {
     const interval = setInterval(() => {
@@ -99,13 +99,36 @@ function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
     return summary;
 }
 
-waitForCalendarEvents(() => {
-    const events = getCurrentWeekEvents();
-    console.log("Current week events:", events?.length);
-    console.log("Current week events details:", events);
-    const weeklySummary = summarizeEventsByCourse(events);
-    console.log("Weekly summary by course:", weeklySummary);
-});
+function buildSummaryHTML(summary: { [key: string]: number }) {
+    if (Object.keys(summary).length === 0) {
+        return `<p>No events found for the current week.</p>`;
+    }
+    const courses = getSelectedCourses();
+
+    return `
+        <div style="margin-bottom:15px;">
+            <h3>Summary:</h3>
+            ${Object.entries(summary)
+                .sort(([, countA], [, countB]) => countB - countA)
+                .map(([courseClass, count]) => {
+                    const course = courses.find(c => courseClass.includes(c.courseId));
+                    const name = course ? course.name : "Unknown Course";
+                    return `
+                        <div style="display:flex; align-items:center; margin-bottom:6px;">
+                            <div class="${courseClass}" style="
+                                width:14px;
+                                height:14px;
+                                margin-right:8px;
+                                border-radius:3px;">
+                            </div>
+                            <span>${name}: ${count} event(s)</span>
+                        </div>
+                    `;
+                })
+                .join("")}
+        </div>
+    `;
+}//end to buildSummaryHTML
 
 
 export function loadInsightsReport() {
@@ -116,31 +139,33 @@ export function loadInsightsReport() {
    }
    
    const currentDate = new Date();
-//    console.log("Current date:", currentDate);
    const startOfWeek = new Date(currentDate);
    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); 
-  //  console.log("Start of week:", startOfWeek);
    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
    const currentMonth = startOfWeek.getMonth(); 
    const currentSunday = startOfWeek.getDate();
    const currentYear = startOfWeek.getFullYear();
-  //  console.log("Current month:", currentMonth);
-  //  console.log("Current Sunday date:", currentSunday);
 
     const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
-//  const x = `${currentYear}-0${currentMonth + 1}-${currentSunday}`;
      const selectedCourses = getSelectedCourses();
      console.log("Selected courses for insights:", selectedCourses);
-    const legendHTML = buildLegendHTML();
-    getCurrentWeekEvents();
-
-
+    // const legendHTML = buildLegendHTML();
 
    $(`#cwu-view-insights-load`).click(() => {
-    const innerHTML = `
-        ${legendHTML}
-        <iframe id="cwu-insights-iframe" src="" width="100%" height="400px" frameborder="0"></iframe>
-    `;
-    startDialog(`Weekly Insights - Week of ${currentWeek}`, innerHTML);
-  });
+    waitForCalendarEvents(() => {
+        const events = getCurrentWeekEvents();
+        // console.log("Current week events:", events?.length);
+        // console.log("Current week events details:", events);
+        const weeklySummary = summarizeEventsByCourse(events);
+        // console.log("Weekly summary by course:", weeklySummary);
+        const summaryHTML = buildSummaryHTML(weeklySummary);
+        const innerHTML = `
+            <div style="display: flex; align-items: flex-start; gap: 20px;">
+                <div style="flex: 1;">${summaryHTML}</div>
+            </div>
+            <iframe id="cwu-insights-iframe" src="" width="100%" height="400px" frameborder="0"></iframe>
+        `;
+        startDialog(`Weekly Insights - Week of ${currentWeek}`, innerHTML);
+     });//end to waitForCalendarEvents
+  });//end to click
 }//end to loadInsightsReport
