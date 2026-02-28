@@ -27,6 +27,12 @@ const STYLESHEETS = {
             border-color: transparent;
         }
 
+        /*resizable modal form*/
+        .tab_holder.clearfix.ui-tabs-panel.ui-widget-content.ui-corner-bottom {
+            max-height: calc(100vh - 210px) !important;
+            resize: both !important;
+            overflow-y: auto !important;
+        }
         `,
     }),
 } as const;
