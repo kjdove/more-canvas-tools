@@ -12,9 +12,19 @@ const STYLESHEETS = {
         }
             
         /*nowline z-index*/
-        .fc-time-grid .fc-slats {
+        .fc-time-grid .fc-slats{
                z-index: 10 !important;
-               position: relative !important;
+        }
+
+        /*insights*/
+        .insights-button {
+           background-color: #abcdef;
+            border-radius: 0.5rem;
+            border-color: transparent;
+        }
+        .insights-button:hover {
+            background-color: #89abcd;
+            border-color: transparent;
         }
 
         `,

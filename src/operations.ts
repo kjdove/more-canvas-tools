@@ -9,6 +9,7 @@ import { injectListUngradedButton } from "./reports/ungraded_report";
 import { injectRecentlyEnrolled } from "./reports/recently_enrolled";
 import { injectSearchButton } from "./utilities/search_menu";
 import { injectBulkAssignmentDatesButton } from "./utilities/bulk_dates_csv";
+import { loadInsightsReport } from "./reports/viewInsights";
 
 const OPERATIONS: ReadonlyArray<Operation<any>> = [
     operation({
@@ -98,7 +99,18 @@ const OPERATIONS: ReadonlyArray<Operation<any>> = [
             injectBulkAssignmentDatesButton(e.moreSettingsDropdown);
         },
         deferUntil: DOMCONTENTLOADED
+    }),
+    operation({
+        description: "provide view insights button on calendar page",
+        condition: () => window.location.pathname.includes('/calendar'),
+        dependencies: {
+            calendarHeader: ".header-bar-outer-container.calendar_header"
+        },
+        action: () => {
+            loadInsightsReport();
+        },
     })
+ 
 ];
 
 export default OPERATIONS;
