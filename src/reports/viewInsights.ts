@@ -17,12 +17,6 @@ const VIEW_INSIGHTS_BUTTON = `
 </div>
 `;
 
-const INSIGHTS_DIALOG = `
-<div id="cwu-insights-dialog" title="Weekly Insights" style="display:none;">
-    <iframe id="cwu-insights-iframe" src="" width="100%" height="400px" frameborder="0"></iframe>
-</div>
-`;
-
 
 export function getSelectedCourses() {
   const courses: { name: string; courseId: string }[] = [];
@@ -74,16 +68,12 @@ function waitForCalendarEvents(callback: { (): void; (): void; }) {
     }, 200);
 }
 
-// waitForCalendarEvents(() => {
-//     const events = $(".fc-day-grid-event");
-//     console.log("Events now exist:", events.length);
-// });
 
-function getCurrentWeekEvents() {
-    const weekRow = $(".fc-day.fc-today").closest(".fc-row.fc-week");
-    const events = weekRow.find(".fc-day-grid-event");
-    return events;
-}
+// function getCurrentWeekEvents() {
+//     const weekRow = $(".fc-day.fc-today").closest(".fc-row.fc-week");
+//     const events = weekRow.find(".fc-day-grid-event");
+//     return events;
+// }
 
 
 function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
@@ -200,12 +190,22 @@ export function loadInsightsReport() {
         startDialog("Weekly Insights", dialogHTML);
     
         setTimeout(() => {
-            $("#cwu-week-picker").datepicker({
+            const $picker = $("#cwu-week-picker");
+            if ($picker.hasClass("hasDatepicker")) {
+                $picker.datepicker("destroy");
+            }
+            $("#ui-datepicker-div").hide();
+        
+            $picker.datepicker({
+                showOn: "focus",
                 onSelect: function(dateText: string) {
                     handleWeekSelection(new Date(dateText));
                 }
             });
-        }, 500);
-        })
-    });
+        
+            $picker.blur();
+        
+        }, 200);
+        })//end to waitForCalendarEvents
+    });//end to click
 }//end to loadInsightsReport
