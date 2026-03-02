@@ -199,7 +199,6 @@ export function loadInsightsReport() {
     
         startDialog("Weekly Insights", dialogHTML);
     
-        // Wait for dialog to render, then attach datepicker
         setTimeout(() => {
             $("#cwu-week-picker").datepicker({
                 onSelect: function(dateText: string) {
@@ -209,20 +208,4 @@ export function loadInsightsReport() {
         }, 500);
         })
     });
-//    $(`#cwu-view-insights-load`).click(() => {
-//     waitForCalendarEvents(() => {
-//         const events = getCurrentWeekEvents();
-//         const weeklySummary = summarizeEventsByCourse(events);
-//         const summaryHTML = buildSummaryHTML(weeklySummary);
-//         const innerHTML = ` 
-//                  <div style="display: flex; align-items: center; gap: 10px;">
-//                     <h2>Weekly Summary for</h2>
-//                 <h2 >${currentWeek}</h2>
-//                 </div>
-//                 <div">${summaryHTML}</div>
-//         `;
-//         // startDialog(`Weekly Insights - Week of ${currentWeek}`, summaryHTML);
-//         startDialog(`Weekly Insights`, innerHTML);
-//      });//end to waitForCalendarEvents
-//   });//end to click
 }//end to loadInsightsReport
