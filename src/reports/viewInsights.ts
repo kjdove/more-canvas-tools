@@ -5,6 +5,7 @@
  */
 import { startDialog } from "~src/canvas/dialog";
 
+
 const VIEW_INSIGHTS_BUTTON = `
 <div style="display:inline-block; margin-left: 10px;">
  <button
@@ -73,16 +74,17 @@ function waitForCalendarEvents(callback: { (): void; (): void; }) {
     }, 200);
 }
 
-waitForCalendarEvents(() => {
-    const events = $(".fc-day-grid-event");
-    console.log("Events now exist:", events.length);
-});
+// waitForCalendarEvents(() => {
+//     const events = $(".fc-day-grid-event");
+//     console.log("Events now exist:", events.length);
+// });
 
 function getCurrentWeekEvents() {
     const weekRow = $(".fc-day.fc-today").closest(".fc-row.fc-week");
     const events = weekRow.find(".fc-day-grid-event");
     return events;
 }
+
 
 function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
     const summary: { [key: string]: number } = {};
@@ -104,10 +106,9 @@ function buildSummaryHTML(summary: { [key: string]: number }) {
         return `<p>No events found for the current week.</p>`;
     }
     const courses = getSelectedCourses();
-
     return `
         <div style="margin-bottom:15px;">
-            <h3>Summary:</h3>
+            
             ${Object.entries(summary)
                 .sort(([, countA], [, countB]) => countB - countA)
                 .map(([courseClass, count]) => {
@@ -130,6 +131,48 @@ function buildSummaryHTML(summary: { [key: string]: number }) {
     `;
 }//end to buildSummaryHTML
 
+function getEventsForWeek(selectedDate: Date) {
+
+    const formatted = selectedDate.toISOString().split("T")[0];
+    const dayCell = $(`.fc-day[data-date="${formatted}"]`);
+
+    if (!dayCell.length) {
+        console.log("No matching day cell found");
+        return $();
+    }
+    const weekRow = dayCell.closest(".fc-row.fc-week");
+
+    const events = weekRow.find(".fc-day-grid-event");
+
+    return events;
+}
+
+function renderUIDatePicker() {
+    return `
+        <div style="display:flex; flex-direction:column; gap:15px; padding:15px;">
+            
+            <p>Select a date to view that week's events:</p>
+            
+            <input 
+                type="text" 
+                id="cwu-week-picker" 
+                placeholder="Click to select a date"
+                style="padding:6px; width:200px;"
+            />
+
+            <div id="cwu-week-summary"></div>
+        </div>
+    `;
+}
+
+function handleWeekSelection(selectedDate: Date) {
+
+    const events = getEventsForWeek(selectedDate);
+    const summary = summarizeEventsByCourse(events);
+    const summaryHTML = buildSummaryHTML(summary);
+
+    $("#cwu-week-summary").html(summaryHTML);
+}
 
 export function loadInsightsReport() {
    const header = $(`.header-bar-outer-container.calendar_header`);
@@ -138,34 +181,48 @@ export function loadInsightsReport() {
        console.log("Insights button added");
    }
    
-   const currentDate = new Date();
-   const startOfWeek = new Date(currentDate);
-   startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); 
-   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-   const currentMonth = startOfWeek.getMonth(); 
-   const currentSunday = startOfWeek.getDate();
-   const currentYear = startOfWeek.getFullYear();
-
-    const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
-     const selectedCourses = getSelectedCourses();
-     console.log("Selected courses for insights:", selectedCourses);
+    const selectedCourses = getSelectedCourses();
     // const legendHTML = buildLegendHTML();
 
-   $(`#cwu-view-insights-load`).click(() => {
-    waitForCalendarEvents(() => {
-        const events = getCurrentWeekEvents();
-        // console.log("Current week events:", events?.length);
-        // console.log("Current week events details:", events);
-        const weeklySummary = summarizeEventsByCourse(events);
-        // console.log("Weekly summary by course:", weeklySummary);
-        const summaryHTML = buildSummaryHTML(weeklySummary);
-        const innerHTML = `
-            <div style="display: flex; align-items: flex-start; gap: 20px;">
-                <div style="flex: 1;">${summaryHTML}</div>
-            </div>
-            <iframe id="cwu-insights-iframe" src="" width="100%" height="400px" frameborder="0"></iframe>
-        `;
-        startDialog(`Weekly Insights - Week of ${currentWeek}`, innerHTML);
-     });//end to waitForCalendarEvents
-  });//end to click
+    const currentDate = new Date();
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); 
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentMonth = startOfWeek.getMonth(); 
+    const currentSunday = startOfWeek.getDate();
+    const currentYear = startOfWeek.getFullYear();
+ 
+    const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
+    $(`#cwu-view-insights-load`).click(() => {
+        waitForCalendarEvents(() => {
+            const dialogHTML = renderUIDatePicker();
+    
+        startDialog("Weekly Insights", dialogHTML);
+    
+        // Wait for dialog to render, then attach datepicker
+        setTimeout(() => {
+            $("#cwu-week-picker").datepicker({
+                onSelect: function(dateText: string) {
+                    handleWeekSelection(new Date(dateText));
+                }
+            });
+        }, 500);
+        })
+    });
+//    $(`#cwu-view-insights-load`).click(() => {
+//     waitForCalendarEvents(() => {
+//         const events = getCurrentWeekEvents();
+//         const weeklySummary = summarizeEventsByCourse(events);
+//         const summaryHTML = buildSummaryHTML(weeklySummary);
+//         const innerHTML = ` 
+//                  <div style="display: flex; align-items: center; gap: 10px;">
+//                     <h2>Weekly Summary for</h2>
+//                 <h2 >${currentWeek}</h2>
+//                 </div>
+//                 <div">${summaryHTML}</div>
+//         `;
+//         // startDialog(`Weekly Insights - Week of ${currentWeek}`, summaryHTML);
+//         startDialog(`Weekly Insights`, innerHTML);
+//      });//end to waitForCalendarEvents
+//   });//end to click
 }//end to loadInsightsReport
