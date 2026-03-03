@@ -190,10 +190,6 @@ export function loadInsightsReport() {
     const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
     $(`#cwu-view-insights-load`).click(() => {
         waitForCalendarEvents(() => {
-            /**something needs to be called before renderUIDatePicker here so that way 
-             * the datePicker stops popping up after first time and then renderUIDatePicker will be caleld in that function */
-            
-    
             setTimeout(() => {
                 const dialogHTML = renderUIDatePicker();
     
