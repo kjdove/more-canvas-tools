@@ -30,34 +30,7 @@ export function getSelectedCourses() {
   return courses;
 }//end to getSelectedCourses
 
-// function buildLegendHTML() {
-//     const courses = getSelectedCourses();
 
-//     if (!courses.length) {
-//         return `<p>No courses currently toggled on.</p>`;
-//     }
-
-//     return `
-//         <div style="margin-bottom:15px;">
-//             <h3>Legend:</h3>
-//             ${courses
-//                 .map(
-//                     (course) => `
-//                 <div style="display:flex; align-items:center; margin-bottom:6px;">
-//                     <div class= "group_${course.courseId}"  style="
-//                         width:14px;
-//                         height:14px;
-//                         margin-right:8px;
-//                         border-radius:3px;">
-//                     </div>
-//                     <span>${course.name}</span>
-//                 </div>
-//             `
-//                 )
-//                 .join("")}
-//         </div>
-//     `;
-// }//end to buildLegendHTML
 
 function waitForCalendarEvents(callback: { (): void; (): void; }) {
     const interval = setInterval(() => {
@@ -67,13 +40,6 @@ function waitForCalendarEvents(callback: { (): void; (): void; }) {
         }
     }, 200);
 }
-
-
-// function getCurrentWeekEvents() {
-//     const weekRow = $(".fc-day.fc-today").closest(".fc-row.fc-week");
-//     const events = weekRow.find(".fc-day-grid-event");
-//     return events;
-// }
 
 
 function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
@@ -135,14 +101,13 @@ function getEventsForWeek(selectedDate: Date) {
     const events = weekRow.find(".fc-day-grid-event");
 
     return events;
-}
+}//end to getEventsForWeek
 
 
 function renderUIDatePicker() {
     return `
-        <div style="display:flex; flex-direction:column; gap:15px; padding:15px;">
-            
-            <p>Select a date to view that week's events:</p>
+        <div>
+            <p>Select a date to view the insights for that week:</p>
             
             <input 
                 type="text" 
@@ -154,7 +119,7 @@ function renderUIDatePicker() {
             <div id="cwu-week-summary"></div>
         </div>
     `;
-}
+}//end to renderUIDatePicker
 
 function handleWeekSelection(selectedDate: Date) {
     //selectedDate month/year has to match url param view_start
@@ -166,49 +131,101 @@ function handleWeekSelection(selectedDate: Date) {
     const summaryHTML = buildSummaryHTML(summary);
 
     $("#cwu-week-summary").html(summaryHTML);
-}
+}//end to handleWeekSelection
+
+// export function loadInsightsReport() {
+//     /**make either only appear on month view or change fucntion so that it works for when on week view*/
+//     window.addEventListener('hashchange', () => {
+//         const header = $(`.header-bar-outer-container.calendar_header`);
+//         if (header.length && !$(`#cwu-view-insights-load`).length && window.location.hash.includes('view_name=month')) {
+//             header.append(VIEW_INSIGHTS_BUTTON);
+//             console.log("Insights button added");
+//         }
+        
+//          const currentDate = new Date();
+//          const startOfWeek = new Date(currentDate);
+//          startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); 
+//          const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+//          const currentMonth = startOfWeek.getMonth(); 
+//          const currentSunday = startOfWeek.getDate();
+//          const currentYear = startOfWeek.getFullYear();
+      
+//          const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
+//          $(`#cwu-view-insights-load`).click(() => {
+//              waitForCalendarEvents(() => {
+//                  setTimeout(() => {
+//                      const dialogHTML = renderUIDatePicker();
+         
+//                  startDialog("Weekly Insights", dialogHTML);
+//                      const $picker = $("#cwu-week-picker");
+//                      if ($picker.hasClass("hasDatepicker")) {
+//                          $picker.datepicker("destroy");
+//                      }
+//                      $("#ui-datepicker-div").hide();
+                 
+//                      $picker.datepicker({
+//                          showOn: "focus",
+//                          onSelect: function(dateText: string) {
+//                              handleWeekSelection(new Date(dateText));
+//                          }
+//                      });
+//                      $picker.blur();
+                 
+//                  }, 200);
+//              })//end to waitForCalendarEvents
+//          });//end to click});
+//     });//end to addEventListener
+// }//end to loadInsightsReport
+
+function handleInsightsClick() {
+    waitForCalendarEvents(() => {
+      setTimeout(() => {
+        const dialogHTML = renderUIDatePicker();
+        startDialog("Weekly Insights", dialogHTML);
+
+        const $picker = $("#cwu-week-picker");
+
+        if ($picker.hasClass("hasDatepicker")) {
+          $picker.datepicker("destroy");
+        }
+
+        $("#ui-datepicker-div").hide();
+
+        $picker.datepicker({
+          showOn: "focus",
+          onSelect: function (dateText: string) {
+            handleWeekSelection(new Date(dateText));
+          }
+        });
+
+        $picker.blur();
+      }, 200);//end to setTimeout
+    });//end to waitForCalendarEvents
+}//end to handleInsightsClick
+
+function updateButtonVisibility() {
+    const isMonthView =
+      window.location.pathname.includes('/calendar') &&
+      window.location.hash.includes('view_name=month');
+
+    const header = $('.header-bar-outer-container.calendar_header');
+    const existingButton = $('#cwu-view-insights-load');
+
+    if (isMonthView && header.length) {
+      if (!existingButton.length) {
+        header.append(VIEW_INSIGHTS_BUTTON);
+        console.log("Insights button added");
+        $('#cwu-view-insights-load')
+          .off('click')
+          .on('click', handleInsightsClick);
+      }
+    } else {
+      existingButton.remove();
+      console.log("Insights button removed");
+    }
+}//end to updateButtonVisibility
 
 export function loadInsightsReport() {
-    /**make either only appear on month view or change fucntion so that it works for when on week view*/
-   const header = $(`.header-bar-outer-container.calendar_header`);
-   if (header.length && !$(`#cwu-view-insights-load`).length) {
-       header.append(VIEW_INSIGHTS_BUTTON);
-       console.log("Insights button added");
-   }
-   
-    const selectedCourses = getSelectedCourses();
-    // const legendHTML = buildLegendHTML();
-
-    const currentDate = new Date();
-    const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); 
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const currentMonth = startOfWeek.getMonth(); 
-    const currentSunday = startOfWeek.getDate();
-    const currentYear = startOfWeek.getFullYear();
- 
-    const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
-    $(`#cwu-view-insights-load`).click(() => {
-        waitForCalendarEvents(() => {
-            setTimeout(() => {
-                const dialogHTML = renderUIDatePicker();
-    
-            startDialog("Weekly Insights", dialogHTML);
-                const $picker = $("#cwu-week-picker");
-                if ($picker.hasClass("hasDatepicker")) {
-                    $picker.datepicker("destroy");
-                }
-                $("#ui-datepicker-div").hide();
-            
-                $picker.datepicker({
-                    showOn: "focus",
-                    onSelect: function(dateText: string) {
-                        handleWeekSelection(new Date(dateText));
-                    }
-                });
-                $picker.blur();
-            
-            }, 200);
-        })//end to waitForCalendarEvents
-    });//end to click
-}//end to loadInsightsReport
+    updateButtonVisibility();
+    window.addEventListener('hashchange', updateButtonVisibility);
+  }
