@@ -137,6 +137,7 @@ function getEventsForWeek(selectedDate: Date) {
     return events;
 }
 
+
 function renderUIDatePicker() {
     return `
         <div style="display:flex; flex-direction:column; gap:15px; padding:15px;">
@@ -156,6 +157,9 @@ function renderUIDatePicker() {
 }
 
 function handleWeekSelection(selectedDate: Date) {
+    //selectedDate month/year has to match url param view_start
+
+
 
     const events = getEventsForWeek(selectedDate);
     const summary = summarizeEventsByCourse(events);
@@ -165,6 +169,7 @@ function handleWeekSelection(selectedDate: Date) {
 }
 
 export function loadInsightsReport() {
+    /**make either only appear on month view or change fucntion so that it works for when on week view*/
    const header = $(`.header-bar-outer-container.calendar_header`);
    if (header.length && !$(`#cwu-view-insights-load`).length) {
        header.append(VIEW_INSIGHTS_BUTTON);
@@ -185,27 +190,29 @@ export function loadInsightsReport() {
     const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
     $(`#cwu-view-insights-load`).click(() => {
         waitForCalendarEvents(() => {
-            const dialogHTML = renderUIDatePicker();
+            /**something needs to be called before renderUIDatePicker here so that way 
+             * the datePicker stops popping up after first time and then renderUIDatePicker will be caleld in that function */
+            
     
-        startDialog("Weekly Insights", dialogHTML);
+            setTimeout(() => {
+                const dialogHTML = renderUIDatePicker();
     
-        setTimeout(() => {
-            const $picker = $("#cwu-week-picker");
-            if ($picker.hasClass("hasDatepicker")) {
-                $picker.datepicker("destroy");
-            }
-            $("#ui-datepicker-div").hide();
-        
-            $picker.datepicker({
-                showOn: "focus",
-                onSelect: function(dateText: string) {
-                    handleWeekSelection(new Date(dateText));
+            startDialog("Weekly Insights", dialogHTML);
+                const $picker = $("#cwu-week-picker");
+                if ($picker.hasClass("hasDatepicker")) {
+                    $picker.datepicker("destroy");
                 }
-            });
-        
-            $picker.blur();
-        
-        }, 200);
+                $("#ui-datepicker-div").hide();
+            
+                $picker.datepicker({
+                    showOn: "focus",
+                    onSelect: function(dateText: string) {
+                        handleWeekSelection(new Date(dateText));
+                    }
+                });
+                $picker.blur();
+            
+            }, 200);
         })//end to waitForCalendarEvents
     });//end to click
 }//end to loadInsightsReport
