@@ -123,8 +123,24 @@ function renderUIDatePicker() {
 
 function handleWeekSelection(selectedDate: Date) {
     //selectedDate month/year has to match url param view_start
+    const viewStart = new URLSearchParams(window.location.hash).get("view_start");
+    console.log("view start", viewStart);
+    console.log("selected date", selectedDate);
 
-
+    //if view start month != selected month, navigate to month of selected date
+    const selectedMonth = selectedDate.getMonth();
+    const selectedYear = selectedDate.getFullYear();
+    if (viewStart) {
+        const [year, month] = viewStart.split("-").map(Number);
+        if (month - 1 !== selectedMonth || year !== selectedYear) {
+            const newViewStart = `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-01`;
+            window.location.hash = `view_name=month&view_start=${newViewStart}`;
+            waitForCalendarEvents(() => {
+                handleWeekSelection(selectedDate);
+            });
+            return;
+        }
+    }
 
     const events = getEventsForWeek(selectedDate);
     const summary = summarizeEventsByCourse(events);
@@ -132,50 +148,6 @@ function handleWeekSelection(selectedDate: Date) {
 
     $("#cwu-week-summary").html(summaryHTML);
 }//end to handleWeekSelection
-
-// export function loadInsightsReport() {
-//     /**make either only appear on month view or change fucntion so that it works for when on week view*/
-//     window.addEventListener('hashchange', () => {
-//         const header = $(`.header-bar-outer-container.calendar_header`);
-//         if (header.length && !$(`#cwu-view-insights-load`).length && window.location.hash.includes('view_name=month')) {
-//             header.append(VIEW_INSIGHTS_BUTTON);
-//             console.log("Insights button added");
-//         }
-        
-//          const currentDate = new Date();
-//          const startOfWeek = new Date(currentDate);
-//          startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); 
-//          const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-//          const currentMonth = startOfWeek.getMonth(); 
-//          const currentSunday = startOfWeek.getDate();
-//          const currentYear = startOfWeek.getFullYear();
-      
-//          const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
-//          $(`#cwu-view-insights-load`).click(() => {
-//              waitForCalendarEvents(() => {
-//                  setTimeout(() => {
-//                      const dialogHTML = renderUIDatePicker();
-         
-//                  startDialog("Weekly Insights", dialogHTML);
-//                      const $picker = $("#cwu-week-picker");
-//                      if ($picker.hasClass("hasDatepicker")) {
-//                          $picker.datepicker("destroy");
-//                      }
-//                      $("#ui-datepicker-div").hide();
-                 
-//                      $picker.datepicker({
-//                          showOn: "focus",
-//                          onSelect: function(dateText: string) {
-//                              handleWeekSelection(new Date(dateText));
-//                          }
-//                      });
-//                      $picker.blur();
-                 
-//                  }, 200);
-//              })//end to waitForCalendarEvents
-//          });//end to click});
-//     });//end to addEventListener
-// }//end to loadInsightsReport
 
 function handleInsightsClick() {
     waitForCalendarEvents(() => {
