@@ -7,7 +7,7 @@ import { startDialog } from "~src/canvas/dialog";
 
 
 const VIEW_INSIGHTS_BUTTON = `
-<div style="display:inline-block; margin-left: 10px;">
+<div >
  <button
    title="View Weekly Insights"
    class="insights-button"
@@ -39,7 +39,7 @@ function waitForCalendarEvents(callback: { (): void; (): void; }) {
             callback();
         }
     }, 200);
-}
+}//end to waitForCalendarEvents
 
 
 function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
@@ -55,7 +55,7 @@ function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
     });
 
     return summary;
-}
+}//end to summarizeEventsByCourse
 
 function buildSummaryHTML(summary: { [key: string]: number }) {
     if (Object.keys(summary).length === 0) {
@@ -200,4 +200,4 @@ function updateButtonVisibility() {
 export function loadInsightsReport() {
     updateButtonVisibility();
     window.addEventListener('hashchange', updateButtonVisibility);
-  }
+}//end to loadInsightsReport
