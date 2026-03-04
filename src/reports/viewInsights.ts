@@ -5,8 +5,9 @@
  */
 import { startDialog } from "~src/canvas/dialog";
 
+
 const VIEW_INSIGHTS_BUTTON = `
-<div style="display:inline-block; margin-left: 10px;">
+<div >
  <button
    title="View Weekly Insights"
    class="insights-button"
@@ -15,13 +16,6 @@ const VIEW_INSIGHTS_BUTTON = `
  </button>
 </div>
 `;
-
-const INSIGHTS_DIALOG = `
-<div id="cwu-insights-dialog" title="Weekly Insights" style="display:none;">
-    <iframe id="cwu-insights-iframe" src="" width="100%" height="400px" frameborder="0"></iframe>
-</div>
-`;
-
 
 export function getSelectedCourses() {
   const courses: { name: string; courseId: string }[] = [];
@@ -35,35 +29,6 @@ export function getSelectedCourses() {
   return courses;
 }//end to getSelectedCourses
 
-// function buildLegendHTML() {
-//     const courses = getSelectedCourses();
-
-//     if (!courses.length) {
-//         return `<p>No courses currently toggled on.</p>`;
-//     }
-
-//     return `
-//         <div style="margin-bottom:15px;">
-//             <h3>Legend:</h3>
-//             ${courses
-//                 .map(
-//                     (course) => `
-//                 <div style="display:flex; align-items:center; margin-bottom:6px;">
-//                     <div class= "group_${course.courseId}"  style="
-//                         width:14px;
-//                         height:14px;
-//                         margin-right:8px;
-//                         border-radius:3px;">
-//                     </div>
-//                     <span>${course.name}</span>
-//                 </div>
-//             `
-//                 )
-//                 .join("")}
-//         </div>
-//     `;
-// }//end to buildLegendHTML
-
 function waitForCalendarEvents(callback: { (): void; (): void; }) {
     const interval = setInterval(() => {
         if ($(".fc-day-grid-event").length > 0) {
@@ -71,18 +36,8 @@ function waitForCalendarEvents(callback: { (): void; (): void; }) {
             callback();
         }
     }, 200);
-}
+}//end to waitForCalendarEvents
 
-waitForCalendarEvents(() => {
-    const events = $(".fc-day-grid-event");
-    console.log("Events now exist:", events.length);
-});
-
-function getCurrentWeekEvents() {
-    const weekRow = $(".fc-day.fc-today").closest(".fc-row.fc-week");
-    const events = weekRow.find(".fc-day-grid-event");
-    return events;
-}
 
 function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
     const summary: { [key: string]: number } = {};
@@ -97,17 +52,24 @@ function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
     });
 
     return summary;
-}
+}//end to summarizeEventsByCourse
 
-function buildSummaryHTML(summary: { [key: string]: number }) {
+function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date) {
     if (Object.keys(summary).length === 0) {
         return `<p>No events found for the current week.</p>`;
     }
     const courses = getSelectedCourses();
+    const totalEvents = Object.values(summary).reduce((sum, count) => sum + count, 0);
 
+    const selectedWeekSunday = new Date(selectedDate);
+    selectedWeekSunday.setDate(selectedDate.getDate() - selectedDate.getDay());
+    //formatted DD Month YYYY
+    const months: string[] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const formatted = `${selectedWeekSunday.getDate()} ${months[selectedWeekSunday.getMonth()]} ${selectedWeekSunday.getFullYear()}`;
+   
     return `
         <div style="margin-bottom:15px;">
-            <h3>Summary:</h3>
+            <p><strong>${totalEvents}</strong> events for week of: <strong>${formatted}</strong></p>
             ${Object.entries(summary)
                 .sort(([, countA], [, countB]) => countB - countA)
                 .map(([courseClass, count]) => {
@@ -130,42 +92,114 @@ function buildSummaryHTML(summary: { [key: string]: number }) {
     `;
 }//end to buildSummaryHTML
 
+function getEventsForWeek(selectedDate: Date) {
+    const formatted = selectedDate.toISOString().split("T")[0];
+    const dayCell = $(`.fc-day[data-date="${formatted}"]`);
+
+    if (!dayCell.length) {
+        console.log("No matching day cell found");
+        return $();
+    }
+
+    const weekRow = dayCell.closest(".fc-row.fc-week");
+    const events = weekRow.find(".fc-day-grid-event");
+    return events;
+}//end to getEventsForWeek
+
+
+function renderUIDatePicker() {
+    return `
+        <div>
+            <p>Select a date to view the insights for that week:</p>
+            
+            <input 
+                type="text" 
+                id="cwu-week-picker" 
+                placeholder="Click to select a date"
+                style="padding:6px; width:200px;"
+            />
+
+            <div id="cwu-week-summary"></div>
+        </div>
+    `;
+}//end to renderUIDatePicker
+
+function handleWeekSelection(selectedDate: Date) {
+    //selectedDate month/year has to match url param view_start
+    const viewStart = new URLSearchParams(window.location.hash).get("view_start");
+
+    //if view start month != selected month, navigate to month of selected date
+    const selectedMonth = selectedDate.getMonth();
+    const selectedYear = selectedDate.getFullYear();
+    if (viewStart) {
+        const [year, month] = viewStart.split("-").map(Number);
+        if (month - 1 !== selectedMonth || year !== selectedYear) {
+            const newViewStart = `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-01`;
+            window.location.hash = `view_name=month&view_start=${newViewStart}`;
+            waitForCalendarEvents(() => {
+                handleWeekSelection(selectedDate);
+            });
+            return;
+        }//end to inner if
+    }//end to outer if
+
+    const events = getEventsForWeek(selectedDate);
+    const summary = summarizeEventsByCourse(events);
+    const summaryHTML = buildSummaryHTML(summary, selectedDate);
+
+    $("#cwu-week-summary").html(summaryHTML);
+}//end to handleWeekSelection
+
+function handleInsightsClick() {
+    waitForCalendarEvents(() => {
+      setTimeout(() => {
+        const dialogHTML = renderUIDatePicker();
+        startDialog("Weekly Insights", dialogHTML);
+
+        const $picker = $("#cwu-week-picker");
+
+        if ($picker.hasClass("hasDatepicker")) {
+          $picker.datepicker("destroy");
+        }
+
+        $("#ui-datepicker-div").hide();
+
+        $picker.datepicker({
+          showOn: "focus",
+          onSelect: function (dateText: string) {
+            handleWeekSelection(new Date(dateText));
+          }
+        });
+
+        $picker.blur();
+      }, 200);//end to setTimeout
+    });//end to waitForCalendarEvents
+}//end to handleInsightsClick
+
+function updateButtonVisibility() {
+    const isMonthView =
+      window.location.pathname.includes('/calendar') &&
+      window.location.hash.includes('view_name=month');
+
+    const header = $('.header-bar-outer-container.calendar_header');
+    const existingButton = $('#cwu-view-insights-load');
+
+    if (isMonthView && header.length) {
+      if (!existingButton.length) {
+        header.append(VIEW_INSIGHTS_BUTTON);
+        console.log("Insights button added");
+        $('#cwu-view-insights-load')
+          .off('click')
+          .on('click', handleInsightsClick);
+      }
+    } 
+    else {
+      existingButton.remove();
+      console.log("Not month view. Insights button removed");
+    }
+}//end to updateButtonVisibility
 
 export function loadInsightsReport() {
-   const header = $(`.header-bar-outer-container.calendar_header`);
-   if (header.length && !$(`#cwu-view-insights-load`).length) {
-       header.append(VIEW_INSIGHTS_BUTTON);
-       console.log("Insights button added");
-   }
-   
-   const currentDate = new Date();
-   const startOfWeek = new Date(currentDate);
-   startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); 
-   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-   const currentMonth = startOfWeek.getMonth(); 
-   const currentSunday = startOfWeek.getDate();
-   const currentYear = startOfWeek.getFullYear();
-
-    const currentWeek = `${months[currentMonth]} ${currentSunday}, ${currentYear}`;
-     const selectedCourses = getSelectedCourses();
-     console.log("Selected courses for insights:", selectedCourses);
-    // const legendHTML = buildLegendHTML();
-
-   $(`#cwu-view-insights-load`).click(() => {
-    waitForCalendarEvents(() => {
-        const events = getCurrentWeekEvents();
-        // console.log("Current week events:", events?.length);
-        // console.log("Current week events details:", events);
-        const weeklySummary = summarizeEventsByCourse(events);
-        // console.log("Weekly summary by course:", weeklySummary);
-        const summaryHTML = buildSummaryHTML(weeklySummary);
-        const innerHTML = `
-            <div style="display: flex; align-items: flex-start; gap: 20px;">
-                <div style="flex: 1;">${summaryHTML}</div>
-            </div>
-            <iframe id="cwu-insights-iframe" src="" width="100%" height="400px" frameborder="0"></iframe>
-        `;
-        startDialog(`Weekly Insights - Week of ${currentWeek}`, innerHTML);
-     });//end to waitForCalendarEvents
-  });//end to click
+    updateButtonVisibility();
+    window.addEventListener('hashchange', updateButtonVisibility);
 }//end to loadInsightsReport
