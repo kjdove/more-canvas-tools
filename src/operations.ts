@@ -10,7 +10,7 @@ import { injectRecentlyEnrolled } from "./reports/recently_enrolled";
 import { injectSearchButton } from "./utilities/search_menu";
 import { injectBulkAssignmentDatesButton } from "./utilities/bulk_dates_csv";
 import { loadInsightsReport } from "./reports/viewInsights";
-import { shadePastEvents } from "./canvas/pastEvents";
+import { loadPastEventsShading } from "./canvas/pastEvents";
 
 const OPERATIONS: ReadonlyArray<Operation<any>> = [
     operation({
@@ -118,7 +118,7 @@ const OPERATIONS: ReadonlyArray<Operation<any>> = [
             calendarContainer: ".fc-view-container"
         },
         action: () => {
-            shadePastEvents();
+            loadPastEventsShading();
         }
     })
  

@@ -16,30 +16,48 @@ export function shadePastEvents() {
         waitForCalendarEvents(() => {
             const todayCell = $(`.fc-day[data-date="${today}"]`);
             const weekRow = todayCell.closest(".fc-row");
-    
+            const todayIndex = todayCell.index();
+
             const pastDays = weekRow.find(".fc-day[data-date]").filter((_, el) => {
                 const date = $(el).attr("data-date");
-                return date! < today; 
+                return date !== undefined && date < today;
             });
     
             pastDays.each((_, day) => {
                 const columnIndex = $(day).index();
-    
+                if (columnIndex === todayIndex) return;
+        
                 const events = weekRow
                     .find(".fc-content-skeleton tbody tr")
                     .find(`td:eq(${columnIndex}) .fc-event`);
-    
-                events.css("opacity", "0.5");
+        
+                events.css("opacity", "0.34");
+                // events.css('color', 'gray');
+                // events.css('border-color', 'gray');
+        
             });
-        });
-    }
+        });//end to waitForCalendarEvents
+    }//end to if
     //else if calendar renders a past month, shade all events
     else if(viewStart < today){
         waitForCalendarEvents(() => {
             const events = $(".fc-content-skeleton tbody tr").find(".fc-event");
-            events.css("opacity", "0.5");
+            events.css("opacity", "0.34");
+            // events.css('color', 'gray');
+            // events.css('border-color', 'gray');
         });
     }
-   
-    window.addEventListener('hashchange', shadePastEvents);
 }//end to shadePastEvents
+
+export function loadPastEventsShading() {
+    shadePastEvents();
+    let lastHash = window.location.hash;
+    setInterval(() => {
+        if (window.location.hash !== lastHash) {
+            lastHash = window.location.hash;
+            console.log("calendar hash changed");
+            shadePastEvents();
+        }
+
+    }, 200);
+}//end to loadPastEventsShading
