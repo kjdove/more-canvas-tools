@@ -8,8 +8,8 @@ import { waitForCalendarEvents } from "src/reports/viewInsights";
 export function shadePastEvents() {
     const today = new Date().toISOString().split("T")[0];
 
+    //when calendar renders current month
     waitForCalendarEvents(() => {
-
         const todayCell = $(`.fc-day[data-date="${today}"]`);
         const weekRow = todayCell.closest(".fc-row");
 
@@ -27,6 +27,6 @@ export function shadePastEvents() {
 
             events.css("opacity", "0.5");
         });
-
     });
+    window.addEventListener('hashchange', shadePastEvents);
 }//end to shadePastEvents
