@@ -26,6 +26,15 @@ const STYLESHEETS = {
             background-color: #89abcd;
             border-color: transparent;
         }
+        .wv-insihgts-button {
+           background-color: #abcdef;
+            border-radius: 0.5rem;
+            border-color: transparent;
+        }
+        .wv-insihgts-button:hover {
+            background-color: #89abcd;
+            border-color: transparent;
+        }
 
         /*resizable modal form*/
         .tab_holder.clearfix.ui-tabs-panel.ui-widget-content.ui-corner-bottom {

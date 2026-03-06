@@ -17,6 +17,19 @@ const VIEW_INSIGHTS_BUTTON = `
 </div>
 `;
 
+//week view (wv) insights button
+const WV_VIEW_INSIGHTS_BUTTON = `
+<div>
+    <button 
+    title="Insights for the Week"
+    class="wv-insihgts-button"
+    id="cwu-wv-view-insights-load"
+    >
+    View Insights for the Week
+    </button>
+</div>
+`;
+
 export function getSelectedCourses() {
   const courses: { name: string; courseId: string }[] = [];
 
@@ -203,3 +216,31 @@ export function loadInsightsReport() {
     updateButtonVisibility();
     window.addEventListener('hashchange', updateButtonVisibility);
 }//end to loadInsightsReport
+
+function wvUpdateButtonVisibility() {
+    const isWeekView =
+      window.location.pathname.includes('/calendar') &&
+      window.location.hash.includes('view_name=week');
+
+    const header = $('.header-bar-outer-container.calendar_header');
+    const existingButton = $('#cwu-wv-view-insights-load');
+
+    if (isWeekView && header.length) {
+      if (!existingButton.length) {
+        header.append(WV_VIEW_INSIGHTS_BUTTON);
+        console.log("WV Insights button added");
+        $('#cwu-wv-view-insights-load')
+          .off('click')
+          .on('click', handleInsightsClick);
+      }
+    } 
+    else {
+      existingButton.remove();
+      console.log("Not week view. Insights button removed");
+    }
+}//end to updateButtonVisibility
+
+export function wvLoadInsightsReport(){
+    wvUpdateButtonVisibility();
+    window.addEventListener('hashchange', wvUpdateButtonVisibility);
+}
