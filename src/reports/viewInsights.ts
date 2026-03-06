@@ -1,7 +1,8 @@
 /**
  * viewInsights.ts
  * users should be able to view weekly insights for their courses and personal calendar
- * - insights should be available for the current week and update as the week changes
+ * - for month view: users can select a week from any month and view the event insights for it
+ * - for week view: users can view insights for currently rendered week/the corresponding week of the view_start date in url
  */
 import { startDialog } from "~src/canvas/dialog";
 
@@ -238,9 +239,9 @@ function wvUpdateButtonVisibility() {
       existingButton.remove();
       console.log("Not week view. Insights button removed");
     }
-}//end to updateButtonVisibility
+}//end to wvUpdateButtonVisibility
 
 export function wvLoadInsightsReport(){
     wvUpdateButtonVisibility();
     window.addEventListener('hashchange', wvUpdateButtonVisibility);
-}
+}//end to wvLoadInsightsReport
