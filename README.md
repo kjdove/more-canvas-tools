@@ -126,27 +126,34 @@ The `Save Draft` and `Load Draft` buttons allow you to store/restore the current
 Finally, the `Preview and Publish Dates to Course` button will take the contents of the preview area and check how they will be applied to this course. It will show you a list of assignments that will be updated, and then you can click the `Apply Changes` button to actually apply the changes. This will update the assignments in the course with the new dates. Or you can click `Cancel Changes` to go back to editing the dates.
 
 ## Weekly Insights
-While on the month view of Canvas's calendar, a 'View Weekly Insights' button is rendered in the calendar header below the calendar navigator buttons. When the button is clicked, a dialog will appear that prompts the user to select a date in order to view the ingihts for that week. The date can be selected by clicking on the input box below this prompt. Once it is clicked, a date picker will be rendered and users have the ability to select a day from the current month as well as the ability to choose from past and upcoming months.
+While on the month view of Canvas's calendar, a `View Weekly Insights` button is rendered in the calendar header below the calendar navigator buttons. When the button is clicked, a dialog will appear that prompts the user to select a date in order to view the ingihts for that week. The date can be selected by clicking on the input box below this prompt. Once it is clicked, a date picker will be rendered and users have the ability to select a day from the current month as well as the ability to choose from past and upcoming months.
 
-Once a date has been selected, a summary of that week's events from the user's personal and course calendars is displayed. Users can close the dialog by clicking on the 'x' in the top right of the header. 
+Once a date has been selected, a summary of that week's events from the user's personal and course calendars is displayed. Users can close the dialog by clicking on the `x` in the top right of the header. 
 
-placeholder for video
+
+https://github.com/user-attachments/assets/1d1b23d9-931e-461a-81d7-1c221e947a0e
+
 
 ## Resizable Event Modal Form
 When creating or editing an event while on the week, month, or agenda view of Canvas's calendar, users have the ability to resize the modal form.
 
 To do so, a user can click and hold the two lines in the bottom right corner of the form and are able to shrink or enlarge it. If they click and hold on the form's header, they can also drag the form across their screen. Additionally, the background blurring effect has been removed, which initially happened whenever the modal form was open. With these new improvements and abilities, a user can better plan out and create events since they can better and more clearly see the calendar.
 
-placeholder for video
+
+
+https://github.com/user-attachments/assets/30226343-8a1f-4e69-9dcc-5bdac6cdd4eb
+
+
 
 ## Shaded Past Events
 
 **not yet completed**
+
 While on the month view of Canvas's calendar, past events appear lighter than others because of their lower opacity. The intent behind this feature is for a user to be able to visually distinguish between completed, past assignmnets and events from upcoming ones. It aims to help improve the overall readability of the month view calendar by drawing the user's focus and priority to current tasks.
 
-<img src="docs/marchPastEvents.png" title="March Shaded Past Events" width="300px"> 
+<img src="docs/marchPastEvents.png" title="March Shaded Past Events" width="600px" height="600px"> 
 
-<img src="docs/febPastEvents.png" title="February Shaded Past Events" width="300px"> 
+<img src="docs/febPastEvents.png" title="February Shaded Past Events" width="600px" height="600px"> 
 
 ## Development Environment Installation
 
