@@ -10,6 +10,7 @@ import { injectRecentlyEnrolled } from "./reports/recently_enrolled";
 import { injectSearchButton } from "./utilities/search_menu";
 import { injectBulkAssignmentDatesButton } from "./utilities/bulk_dates_csv";
 import { loadInsightsReport } from "./reports/viewInsights";
+import { loadPastEventsShading } from "./canvas/pastEvents";
 
 const OPERATIONS: ReadonlyArray<Operation<any>> = [
     operation({
@@ -109,6 +110,16 @@ const OPERATIONS: ReadonlyArray<Operation<any>> = [
         action: () => {
             loadInsightsReport();
         },
+    }),
+    operation({
+        description: "shade past evnets on calendar month view",
+        condition: () => window.location.pathname.includes('/calendar'),
+        dependencies: {
+            calendarContainer: ".fc-view-container"
+        },
+        action: () => {
+            loadPastEventsShading();
+        }
     })
  
 ];

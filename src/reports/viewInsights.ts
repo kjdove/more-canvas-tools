@@ -29,7 +29,7 @@ export function getSelectedCourses() {
   return courses;
 }//end to getSelectedCourses
 
-function waitForCalendarEvents(callback: { (): void; (): void; }) {
+export function waitForCalendarEvents(callback: { (): void; (): void; }) {
     const interval = setInterval(() => {
         if ($(".fc-day-grid-event").length > 0) {
             clearInterval(interval);
