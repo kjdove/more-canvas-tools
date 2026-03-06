@@ -144,9 +144,9 @@ placeholder for video
 **not yet completed**
 While on the month view of Canvas's calendar, past events appear lighter than others because of their lower opacity. The intent behind this feature is for a user to be able to visually distinguish between completed, past assignmnets and events from upcoming ones. It aims to help improve the overall readability of the month view calendar by drawing the user's focus and priority to current tasks.
 
-placeholder for image 1
+<img src="docs/marchPastEvents.png" title="March Shaded Past Events" width="300px"> 
 
-placeholder for image 2
+<img src="docs/febPastEvents.png" title="February Shaded Past Events" width="300px"> 
 
 ## Development Environment Installation
 
