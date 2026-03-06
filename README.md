@@ -25,6 +25,9 @@ We are always working on new features, but here's what we have so far:
 3. [Spread Grade](#spread-grade): A particular tool for the speedgrader that replicates grades to other group members (based on email addresses found in the submitted Word document). Mostly only for courses that use Word Documents.
 4. [List Ungraded Submissions](#list-ungraded-submissions): A tool to list all ungraded submissions in a course.
 5. [List Recently Enrolled Users](#list-recently-enrolled-users): A tool to list all users who have recently enrolled in a course.
+6. [Weekly Insights](#weekly-insights): A tool to view insights on a user's courses and personal calendar for a selected week.
+7. [Resizable Event Modal Form](#resizable-event-modal-form): To be able to better view already created events and assignments when making or editing an event.
+8. [Shaded Past Events](#shaded-past-events): To visually distinguish past events and assignments from upcoming ones. 
 
 ## Activity Report
 
@@ -121,6 +124,29 @@ You can adjust the delimiter and quote for how the file is generated, but that s
 The `Save Draft` and `Load Draft` buttons allow you to store/restore the current version of the **PREVIEW AREA** (not the textarea) in your localStorage. This is useful for saving your work in progress, if you need to come back to it later.
 
 Finally, the `Preview and Publish Dates to Course` button will take the contents of the preview area and check how they will be applied to this course. It will show you a list of assignments that will be updated, and then you can click the `Apply Changes` button to actually apply the changes. This will update the assignments in the course with the new dates. Or you can click `Cancel Changes` to go back to editing the dates.
+
+## Weekly Insights
+While on the month view of Canvas's calendar, a 'View Weekly Insights' button is rendered in the calendar header below the calendar navigator buttons. When the button is clicked, a dialog will appear that prompts the user to select a date in order to view the ingihts for that week. The date can be selected by clicking on the input box below this prompt. Once it is clicked, a date picker will be rendered and users have the ability to select a day from the current month as well as the ability to choose from past and upcoming months.
+
+Once a date has been selected, a summary of that week's events from the user's personal and course calendars is displayed. Users can close the dialog by clicking on the 'x' in the top right of the header. 
+
+placeholder for video
+
+## Resizable Event Modal Form
+When creating or editing an event while on the week, month, or agenda view of Canvas's calendar, users have the ability to resize the modal form.
+
+To do so, a user can click and hold the two lines in the bottom right corner of the form and are able to shrink or enlarge it. If they click and hold on the form's header, they can also drag the form across their screen. Additionally, the background blurring effect has been removed, which initially happened whenever the modal form was open. With these new improvements and abilities, a user can better plan out and create events since they can better and more clearly see the calendar.
+
+placeholder for video
+
+## Shaded Past Events
+
+**not yet completed**
+While on the month view of Canvas's calendar, past events appear lighter than others because of their lower opacity. The intent behind this feature is for a user to be able to visually distinguish between completed, past assignmnets and events from upcoming ones. It aims to help improve the overall readability of the month view calendar by drawing the user's focus and priority to current tasks.
+
+placeholder for image 1
+
+placeholder for image 2
 
 ## Development Environment Installation
 
