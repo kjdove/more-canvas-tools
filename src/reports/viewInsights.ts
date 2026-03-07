@@ -35,12 +35,8 @@ function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
     return summary;
 }//end to summarizeEventsByCourse
 
-function getEventsForMonth() {
-  const selectedMonth = new URLSearchParams(window.location.hash).get("view_start")?.split("-")[1];
-  console.log("Selected month from URL:", selectedMonth);
-  
+function getEventsForMonth() {  
   const monthlyEvents = $(`.fc-widget-content`).find(`.fc-day-grid-event`);
-  console.log("Total events found in month view:", monthlyEvents.length);
   return monthlyEvents;
 }//end to getEventsForMonth
 
@@ -49,20 +45,26 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
         return `<p>No events found for the current week.</p>`;
     }
     const courses = getSelectedCourses();
-    const totalEvents = Object.values(summary).reduce((sum, count) => sum + count, 0);
+    const totalWeeklyEvents = Object.values(summary).reduce((sum, count) => sum + count, 0);
     const monthlyEvents = getEventsForMonth();
     const monthlySummary = summarizeEventsByCourse(monthlyEvents);
+    const totalMonthlyEvents = Object.values(monthlySummary).reduce((sum, count) => sum + count, 0);
     const selectedWeekSunday = new Date(selectedDate);
     selectedWeekSunday.setDate(selectedDate.getDate() - selectedDate.getDay());
     //formatted DD Month YYYY
     const months: string[] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const formatted = `${selectedWeekSunday.getDate()} ${months[selectedWeekSunday.getMonth()]} ${selectedWeekSunday.getFullYear()}`;
+
+    const urlMonth = new URLSearchParams(window.location.hash).get("view_start")?.split("-")[1];
+    const formattedMonth = months[urlMonth ? parseInt(urlMonth) - 1 : selectedDate.getMonth()];
+
+    const weekTitle = $(`.navigation_title`).text().trim();
     
     return `
       ${view === "month" ? 
         `  <div style="margin-bottom:15px; display: flex; ">
             <div style="flex:1;">
-               <p><strong>${totalEvents}</strong> events for week of: <strong>${formatted}</strong></p>
+               <p><strong>${totalWeeklyEvents}</strong> events for week of: <strong>${formatted}</strong></p>
               ${Object.entries(summary)
                   .sort(([, countA], [, countB]) => countB - countA)
                   .map(([courseClass, count]) => {
@@ -83,7 +85,7 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
                   .join("")}
             </div>
             <div style="flex:1">
-              <p>month stats</p>
+              <p><strong>${totalMonthlyEvents}</strong> events for <strong>${formattedMonth} ${selectedWeekSunday.getFullYear()}</strong></p>
               ${Object.entries(monthlySummary)
                   .sort(([, countA], [, countB]) => countB - countA)
                   .map(([courseClass, count]) => {
@@ -105,7 +107,7 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
             </div>
         </div>` :
         `  <div style="margin-bottom:15px;">
-            <p><strong>${totalEvents}</strong> events this week:</strong></p>
+            <p><strong>${totalWeeklyEvents}</strong> events for: <strong>${weekTitle}</strong></p>
             ${Object.entries(summary)
                 .sort(([, countA], [, countB]) => countB - countA)
                 .map(([courseClass, count]) => {
@@ -248,7 +250,7 @@ function updateButtonVisibility() {
     } 
     else {
       existingButton.remove();  
-      console.log("Not month view. Insights button removed");
+      console.log("Not month view. View Insights button removed");
     }
 }//end to updateButtonVisibility
 
@@ -342,7 +344,7 @@ function wvUpdateButtonVisibility() {
     } 
     else {
       existingButton.remove();
-      console.log("Not week view. Insights button removed");
+      console.log("Not week view. View Weekly Insights button removed.");
     }
 }//end to wvUpdateButtonVisibility
 
