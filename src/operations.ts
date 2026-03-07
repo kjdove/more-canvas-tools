@@ -9,7 +9,7 @@ import { injectListUngradedButton } from "./reports/ungraded_report";
 import { injectRecentlyEnrolled } from "./reports/recently_enrolled";
 import { injectSearchButton } from "./utilities/search_menu";
 import { injectBulkAssignmentDatesButton } from "./utilities/bulk_dates_csv";
-import { loadInsightsReport } from "./reports/viewInsights";
+import { loadInsightsReport, wvLoadInsightsReport } from "./reports/viewInsights";
 import { loadPastEventsShading } from "./canvas/pastEvents";
 
 const OPERATIONS: ReadonlyArray<Operation<any>> = [
@@ -102,13 +102,23 @@ const OPERATIONS: ReadonlyArray<Operation<any>> = [
         deferUntil: DOMCONTENTLOADED
     }),
     operation({
-        description: "provide view insights button on calendar page",
+        description: "provide view insights button on calendar page - month view",
         condition: () => window.location.pathname.includes('/calendar'),
         dependencies: {
             calendarHeader: ".header-bar-outer-container.calendar_header"
         },
         action: () => {
             loadInsightsReport();
+        },
+    }),
+    operation({
+        description: "provide view insights button on calendar page - week view",
+        condition: () => window.location.pathname.includes('/calendar'),
+        dependencies: {
+            calendarHeader: ".header-bar-outer-container.calendar_header"
+        },
+        action: () => {
+            wvLoadInsightsReport();
         },
     }),
     operation({
@@ -120,7 +130,7 @@ const OPERATIONS: ReadonlyArray<Operation<any>> = [
         action: () => {
             loadPastEventsShading();
         }
-    })
+    }),
  
 ];
 
