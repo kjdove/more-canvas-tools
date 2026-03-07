@@ -1,9 +1,10 @@
 /**
  * viewInsights.ts
  * users should be able to view weekly insights for their courses and personal calendar
- * - for month view: users can select a week from any month and view the event insights for it
+ * - for month view: users can select a week from any month and view the event insights for it as well as insights for that month
  * - for week view: users can view insights for currently rendered week/the corresponding week of the view_start date in url
  */
+import { get } from "jquery";
 import { startDialog } from "~src/canvas/dialog";
 
 
@@ -34,13 +35,23 @@ function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
     return summary;
 }//end to summarizeEventsByCourse
 
+function getEventsForMonth() {
+  const selectedMonth = new URLSearchParams(window.location.hash).get("view_start")?.split("-")[1];
+  console.log("Selected month from URL:", selectedMonth);
+  
+  const monthlyEvents = $(`.fc-widget-content`).find(`.fc-day-grid-event`);
+  console.log("Total events found in month view:", monthlyEvents.length);
+  return monthlyEvents;
+}//end to getEventsForMonth
+
 function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date, view: string) {
     if (Object.keys(summary).length === 0) {
         return `<p>No events found for the current week.</p>`;
     }
     const courses = getSelectedCourses();
     const totalEvents = Object.values(summary).reduce((sum, count) => sum + count, 0);
-
+    const monthlyEvents = getEventsForMonth();
+    const monthlySummary = summarizeEventsByCourse(monthlyEvents);
     const selectedWeekSunday = new Date(selectedDate);
     selectedWeekSunday.setDate(selectedDate.getDate() - selectedDate.getDay());
     //formatted DD Month YYYY
@@ -49,26 +60,49 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
     
     return `
       ${view === "month" ? 
-        `  <div style="margin-bottom:15px;">
-            <p><strong>${totalEvents}</strong> events for week of: <strong>${formatted}</strong></p>
-            ${Object.entries(summary)
-                .sort(([, countA], [, countB]) => countB - countA)
-                .map(([courseClass, count]) => {
-                    const course = courses.find(c => courseClass.includes(c.courseId));
-                    const name = course ? course.name : "Unknown Course";
-                    return `
-                        <div style="display:flex; align-items:center; margin-left:6px; padding-bottom:10px">
-                            <div class="${courseClass}" style="
-                                width:14px;
-                                height:14px;
-                                margin-right:8px;
-                                border-radius:3px;">
-                            </div>
-                            <span>${name}: ${count} ${count === 1 ? `event` : `events`}</span>
-                        </div>
-                    `;
-                })
-                .join("")}
+        `  <div style="margin-bottom:15px; display: flex; ">
+            <div style="flex:1;">
+               <p><strong>${totalEvents}</strong> events for week of: <strong>${formatted}</strong></p>
+              ${Object.entries(summary)
+                  .sort(([, countA], [, countB]) => countB - countA)
+                  .map(([courseClass, count]) => {
+                      const course = courses.find(c => courseClass.includes(c.courseId));
+                      const name = course ? course.name : "Unknown Course";
+                      return `
+                          <div style="display:flex; align-items:center; margin-left:6px; padding-bottom:10px">
+                              <div class="${courseClass}" style="
+                                  width:14px;
+                                  height:14px;
+                                  margin-right:8px;
+                                  border-radius:3px;">
+                              </div>
+                              <span>${name}: ${count} ${count === 1 ? `event` : `events`}</span>
+                          </div>
+                      `;
+                  })
+                  .join("")}
+            </div>
+            <div style="flex:1">
+              <p>month stats</p>
+              ${Object.entries(monthlySummary)
+                  .sort(([, countA], [, countB]) => countB - countA)
+                  .map(([courseClass, count]) => {
+                      const course = courses.find(c => courseClass.includes(c.courseId));
+                      const name = course ? course.name : "Unknown Course";
+                      return `
+                          <div style="display:flex; align-items:center; margin-left:6px; padding-bottom:10px">
+                              <div class="${courseClass}" style="
+                                  width:14px;
+                                  height:14px;
+                                  margin-right:8px;
+                                  border-radius:3px;">
+                              </div>
+                              <span>${name}: ${count} ${count === 1 ? `event` : `events`}</span>
+                          </div>
+                      `;
+                  })
+                  .join("")}
+            </div>
         </div>` :
         `  <div style="margin-bottom:15px;">
             <p><strong>${totalEvents}</strong> events this week:</strong></p>
@@ -99,10 +133,10 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
 const VIEW_INSIGHTS_BUTTON = `
 <div >
  <button
-   title="View Weekly Insights"
+   title="View Insights"
    class="insights-button"
    id="cwu-view-insights-load">
-   View Weekly Insights
+   View Insights
  </button>
 </div>
 `;
@@ -159,9 +193,9 @@ function handleWeekSelection(selectedDate: Date) {
         }//end to inner if
     }//end to outer if
 
-    const events = getEventsForWeek(selectedDate);
-    const summary = summarizeEventsByCourse(events);
-    const summaryHTML = buildSummaryHTML(summary, selectedDate, "month");
+    const eventsWeekly = getEventsForWeek(selectedDate);
+    const summaryWeekly = summarizeEventsByCourse(eventsWeekly);
+    const summaryHTML = buildSummaryHTML(summaryWeekly, selectedDate, "month");
 
     $("#cwu-week-summary").html(summaryHTML);
 }//end to handleWeekSelection
@@ -233,7 +267,7 @@ const WV_VIEW_INSIGHTS_BUTTON = `
     class="wv-insihgts-button"
     id="cwu-wv-view-insights-load"
     >
-    View Insights for this Week
+    View Weekly Insights
     </button>
 </div>
 `;
