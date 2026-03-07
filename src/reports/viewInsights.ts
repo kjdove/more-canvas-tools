@@ -7,30 +7,6 @@
 import { startDialog } from "~src/canvas/dialog";
 
 
-const VIEW_INSIGHTS_BUTTON = `
-<div >
- <button
-   title="View Weekly Insights"
-   class="insights-button"
-   id="cwu-view-insights-load">
-   View Weekly Insights
- </button>
-</div>
-`;
-
-//week view (wv) insights button
-const WV_VIEW_INSIGHTS_BUTTON = `
-<div>
-    <button 
-    title="Insights for the Week"
-    class="wv-insihgts-button"
-    id="cwu-wv-view-insights-load"
-    >
-    View Insights for the Week
-    </button>
-</div>
-`;
-
 export function getSelectedCourses() {
   const courses: { name: string; courseId: string }[] = [];
 
@@ -42,16 +18,6 @@ export function getSelectedCourses() {
     });
   return courses;
 }//end to getSelectedCourses
-
-export function waitForCalendarEvents(callback: { (): void; (): void; }) {
-    const interval = setInterval(() => {
-        if ($(".fc-day-grid-event").length > 0) {
-            clearInterval(interval);
-            callback();
-        }
-    }, 200);
-}//end to waitForCalendarEvents
-
 
 function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
     const summary: { [key: string]: number } = {};
@@ -106,6 +72,27 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
     `;
 }//end to buildSummaryHTML
 
+/**MONTH VIEW */
+const VIEW_INSIGHTS_BUTTON = `
+<div >
+ <button
+   title="View Weekly Insights"
+   class="insights-button"
+   id="cwu-view-insights-load">
+   View Weekly Insights
+ </button>
+</div>
+`;
+
+export function waitForCalendarEvents(callback: { (): void; (): void; }) {
+  const interval = setInterval(() => {
+      if ($(".fc-day-grid-event").length > 0) {
+          clearInterval(interval);
+          callback();
+      }
+  }, 200);
+}//end to waitForCalendarEvents
+
 function getEventsForWeek(selectedDate: Date) {
     const formatted = selectedDate.toISOString().split("T")[0];
     const dayCell = $(`.fc-day[data-date="${formatted}"]`);
@@ -119,7 +106,6 @@ function getEventsForWeek(selectedDate: Date) {
     const events = weekRow.find(".fc-day-grid-event");
     return events;
 }//end to getEventsForWeek
-
 
 function renderUIDatePicker() {
     return `
@@ -218,6 +204,79 @@ export function loadInsightsReport() {
     window.addEventListener('hashchange', updateButtonVisibility);
 }//end to loadInsightsReport
 
+/**WEEK VIEW */
+
+//week view (wv) insights button
+const WV_VIEW_INSIGHTS_BUTTON = `
+<div>
+    <button 
+    title="Insights for the Week"
+    class="wv-insihgts-button"
+    id="cwu-wv-view-insights-load"
+    >
+    View Insights for the Week
+    </button>
+</div>
+`;
+
+//wait for week view events
+function wvWaitForEvents(callback: { (): void; (): void; }) {
+  const interval = setInterval(() => {
+      if ($(".fc-time-grid-event").length > 0) {
+          clearInterval(interval);
+          callback();
+      }
+  }, 200);
+}//end to wvWaitForEvents
+
+//get events for week view
+function wvGetEvents(selectedDate: Date) {
+  const formatted = selectedDate.toISOString().split("T")[0];
+  const weekRow = $(`.fc-row.fc-week.fc-widget-content`)[0];
+  console.log('found week rows:', weekRow);
+
+  //get all day events
+  const allDayEvents = $(weekRow).find(`.fc-day-grid-event`);
+  console.log('found all day events:', allDayEvents);
+  
+  //get events in time grid
+  const timeGrid = $(`.fc-scroller.fc-time-grid-container`);
+  console.log('found time grid:', timeGrid);  
+  const timeGridEvents = timeGrid.find(`.fc-time-grid-event`);
+  console.log('found time grid events:', timeGridEvents);
+
+  //return all day events and time grid events
+  const allEvents = allDayEvents.add(timeGridEvents);
+  console.log('combined events:', allEvents);
+  return allEvents;
+
+}//end to wvGetEvents
+
+
+function wvHandleInsightsClick() {
+  wvWaitForEvents(() => {
+    setTimeout(() => {
+      const viewStart = new URLSearchParams(window.location.hash).get("view_start");
+      const selectedDate = viewStart ? new Date(viewStart) : null;
+      console.log("Selected date from URL:", selectedDate);
+      if(selectedDate){
+        //call wvGetEvents pass in selectedDate
+        const events = wvGetEvents(selectedDate);
+        //call summarizeEventsByCourse pass in events from wvGetEvents
+        const summary = summarizeEventsByCourse(events);
+        //call buildSummaryHTML pass in summary from summarizeEventsByCourse and selectedDate
+        const summaryHTML = buildSummaryHTML(summary, selectedDate);
+        //startDialog with title "Weekly Insights" and content from buildSummaryHTML
+        startDialog("Weekly Insights", summaryHTML);
+      }
+      else {
+        console.log("No view_start date found in URL");
+      }
+
+    }, 200);
+  })//end to wvWaitForEvents
+}//end to wvHandleInsightsClick
+
 function wvUpdateButtonVisibility() {
     const isWeekView =
       window.location.pathname.includes('/calendar') &&
@@ -232,7 +291,7 @@ function wvUpdateButtonVisibility() {
         console.log("WV Insights button added");
         $('#cwu-wv-view-insights-load')
           .off('click')
-          .on('click', handleInsightsClick);
+          .on('click', wvHandleInsightsClick);
       }
     } 
     else {
