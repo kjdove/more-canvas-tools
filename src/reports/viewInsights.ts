@@ -1,10 +1,9 @@
 /**
  * viewInsights.ts
- * users should be able to view weekly insights for their courses and personal calendar
- * - for month view: users can select a week from any month and view the event insights for it as well as insights for that month
+ * users should be able to view weekly/monthly insights for their courses and personal calendar
+ * - for month view: users can select a week from any month and view the event insights for it as well as total num of events for that month
  * - for week view: users can view insights for currently rendered week/the corresponding week of the view_start date in url
  */
-import { get } from "jquery";
 import { startDialog } from "~src/canvas/dialog";
 
 
@@ -51,7 +50,6 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
     const totalMonthlyEvents = Object.values(monthlySummary).reduce((sum, count) => sum + count, 0);
     const selectedWeekSunday = new Date(selectedDate);
     selectedWeekSunday.setDate(selectedDate.getDate() - selectedDate.getDay());
-    //formatted DD Month YYYY
     const months: string[] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const formatted = `${selectedWeekSunday.getDate()} ${months[selectedWeekSunday.getMonth()]} ${selectedWeekSunday.getFullYear()}`;
 
@@ -84,7 +82,7 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
                   })
                   .join("")}
             </div>
-            <div style="flex:1">
+            <div style="flex:1;">
               <p><strong>${totalMonthlyEvents}</strong> events for <strong>${formattedMonth} ${selectedWeekSunday.getFullYear()}</strong></p>
               ${Object.entries(monthlySummary)
                   .sort(([, countA], [, countB]) => countB - countA)
@@ -179,6 +177,8 @@ function renderUIDatePicker() {
 function handleWeekSelection(selectedDate: Date) {
     //selectedDate month/year has to match url param view_start
     const viewStart = new URLSearchParams(window.location.hash).get("view_start");
+    //clear summary before rendering new ones
+    $("#cwu-week-summary").html("");
 
     //if view start month != selected month, navigate to month of selected date
     const selectedMonth = selectedDate.getMonth();
@@ -261,7 +261,6 @@ export function loadInsightsReport() {
 
 /**WEEK VIEW */
 
-//week view (wv) insights button
 const WV_VIEW_INSIGHTS_BUTTON = `
 <div>
     <button 
@@ -314,8 +313,8 @@ function wvHandleInsightsClick() {
         const summary = summarizeEventsByCourse(events);
         //call buildSummaryHTML pass in summary from summarizeEventsByCourse and selectedDate
         const summaryHTML = buildSummaryHTML(summary, viewStart ? new Date(viewStart) : new Date(), "week");
-        //startDialog with title "Weekly Insights" and content from buildSummaryHTML
-        startDialog("Weekly Insights", summaryHTML);
+        //startDialog with content from buildSummaryHTML
+        startDialog("View Insights", summaryHTML);
       }
       else {
         console.log("No view_start date found in URL");
