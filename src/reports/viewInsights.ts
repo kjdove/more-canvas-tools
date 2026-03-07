@@ -57,35 +57,35 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
                     const course = courses.find(c => courseClass.includes(c.courseId));
                     const name = course ? course.name : "Unknown Course";
                     return `
-                        <div style="display:flex; align-items:center; margin-bottom:6px;">
+                        <div style="display:flex; align-items:center; margin-left:6px; padding-bottom:10px">
                             <div class="${courseClass}" style="
                                 width:14px;
                                 height:14px;
                                 margin-right:8px;
                                 border-radius:3px;">
                             </div>
-                            <span>${name}: ${count} event(s)</span>
+                            <span>${name}: ${count} ${count === 1 ? `event` : `events`}</span>
                         </div>
                     `;
                 })
                 .join("")}
         </div>` :
         `  <div style="margin-bottom:15px;">
-            <p><strong>${totalEvents}</strong> events for this week:</strong></p>
+            <p><strong>${totalEvents}</strong> events this week:</strong></p>
             ${Object.entries(summary)
                 .sort(([, countA], [, countB]) => countB - countA)
                 .map(([courseClass, count]) => {
                     const course = courses.find(c => courseClass.includes(c.courseId));
                     const name = course ? course.name : "Unknown Course";
                     return `
-                        <div style="display:flex; align-items:center; margin-bottom:6px;">
+                        <div style="display:flex; align-items:center; margin-left:6px; padding-bottom:10px">
                             <div class="${courseClass}" style="
                                 width:14px;
                                 height:14px;
                                 margin-right:8px;
                                 border-radius:3px;">
                             </div>
-                            <span>${name}: ${count} event(s)</span>
+                            <span>${name}: ${count} ${count === 1 ? `event` : `events`}</span>
                         </div>
                     `;
                 })
@@ -229,11 +229,11 @@ export function loadInsightsReport() {
 const WV_VIEW_INSIGHTS_BUTTON = `
 <div>
     <button 
-    title="Insights for the Week"
+    title="Insights for this Week"
     class="wv-insihgts-button"
     id="cwu-wv-view-insights-load"
     >
-    View Insights for the Week
+    View Insights for this Week
     </button>
 </div>
 `;
