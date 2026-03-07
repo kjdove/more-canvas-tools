@@ -69,7 +69,6 @@ export function loadPastEventsShading() {
     setInterval(() => {
         if (window.location.hash !== lastHash) {
             lastHash = window.location.hash;
-            console.log("calendar hash changed");
             shadePastEvents();
         }
     }, 200);

@@ -1,7 +1,7 @@
 /**
  * viewInsights.ts
- * users should be able to view weekly insights for their courses and personal calendar
- * - for month view: users can select a week from any month and view the event insights for it
+ * users should be able to view weekly/monthly insights for their courses and personal calendar
+ * - for month view: users can select a week from any month and view the event insights for it as well as total num of events for that month
  * - for week view: users can view insights for currently rendered week/the corresponding week of the view_start date in url
  */
 import { startDialog } from "~src/canvas/dialog";
@@ -34,44 +34,78 @@ function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
     return summary;
 }//end to summarizeEventsByCourse
 
+function getEventsForMonth() {  
+  const monthlyEvents = $(`.fc-widget-content`).find(`.fc-day-grid-event`);
+  return monthlyEvents;
+}//end to getEventsForMonth
+
 function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date, view: string) {
     if (Object.keys(summary).length === 0) {
         return `<p>No events found for the current week.</p>`;
     }
     const courses = getSelectedCourses();
-    const totalEvents = Object.values(summary).reduce((sum, count) => sum + count, 0);
-
+    const totalWeeklyEvents = Object.values(summary).reduce((sum, count) => sum + count, 0);
+    const monthlyEvents = getEventsForMonth();
+    const monthlySummary = summarizeEventsByCourse(monthlyEvents);
+    const totalMonthlyEvents = Object.values(monthlySummary).reduce((sum, count) => sum + count, 0);
     const selectedWeekSunday = new Date(selectedDate);
     selectedWeekSunday.setDate(selectedDate.getDate() - selectedDate.getDay());
-    //formatted DD Month YYYY
     const months: string[] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const formatted = `${selectedWeekSunday.getDate()} ${months[selectedWeekSunday.getMonth()]} ${selectedWeekSunday.getFullYear()}`;
+
+    const urlMonth = new URLSearchParams(window.location.hash).get("view_start")?.split("-")[1];
+    const formattedMonth = months[urlMonth ? parseInt(urlMonth) - 1 : selectedDate.getMonth()];
+
+    const weekTitle = $(`.navigation_title`).text().trim();
     
     return `
       ${view === "month" ? 
-        `  <div style="margin-bottom:15px;">
-            <p><strong>${totalEvents}</strong> events for week of: <strong>${formatted}</strong></p>
-            ${Object.entries(summary)
-                .sort(([, countA], [, countB]) => countB - countA)
-                .map(([courseClass, count]) => {
-                    const course = courses.find(c => courseClass.includes(c.courseId));
-                    const name = course ? course.name : "Unknown Course";
-                    return `
-                        <div style="display:flex; align-items:center; margin-left:6px; padding-bottom:10px">
-                            <div class="${courseClass}" style="
-                                width:14px;
-                                height:14px;
-                                margin-right:8px;
-                                border-radius:3px;">
-                            </div>
-                            <span>${name}: ${count} ${count === 1 ? `event` : `events`}</span>
-                        </div>
-                    `;
-                })
-                .join("")}
+        `  <div style="margin-top: 20px; margin-bottom:15px; display: flex; gap: 180px">
+            <div style="flex:1;">
+               <p><strong>${totalWeeklyEvents}</strong> events for week of: <strong>${formatted}</strong></p>
+              ${Object.entries(summary)
+                  .sort(([, countA], [, countB]) => countB - countA)
+                  .map(([courseClass, count]) => {
+                      const course = courses.find(c => courseClass.includes(c.courseId));
+                      const name = course ? course.name : "Unknown Course";
+                      return `
+                          <div style="display:flex; align-items:center; margin-left:6px; padding-bottom:10px">
+                              <div class="${courseClass}" style="
+                                  width:14px;
+                                  height:14px;
+                                  margin-right:8px;
+                                  border-radius:3px;">
+                              </div>
+                              <span>${name}: ${count} ${count === 1 ? `event` : `events`}</span>
+                          </div>
+                      `;
+                  })
+                  .join("")}
+            </div>
+            <div style="flex:1;">
+              <p><strong>${totalMonthlyEvents}</strong> events for <strong>${formattedMonth} ${selectedWeekSunday.getFullYear()}</strong></p>
+              ${Object.entries(monthlySummary)
+                  .sort(([, countA], [, countB]) => countB - countA)
+                  .map(([courseClass, count]) => {
+                      const course = courses.find(c => courseClass.includes(c.courseId));
+                      const name = course ? course.name : "Unknown Course";
+                      return `
+                          <div style="display:flex; align-items:center; margin-left:6px; padding-bottom:10px">
+                              <div class="${courseClass}" style="
+                                  width:14px;
+                                  height:14px;
+                                  margin-right:8px;
+                                  border-radius:3px;">
+                              </div>
+                              <span>${name}: ${count} ${count === 1 ? `event` : `events`}</span>
+                          </div>
+                      `;
+                  })
+                  .join("")}
+            </div>
         </div>` :
-        `  <div style="margin-bottom:15px;">
-            <p><strong>${totalEvents}</strong> events this week:</strong></p>
+        `  <div style="display: flex; flex-direction: column; align-items:center; height:100%">
+            <p><strong>${totalWeeklyEvents}</strong> events for: <strong>${weekTitle}</strong></p>
             ${Object.entries(summary)
                 .sort(([, countA], [, countB]) => countB - countA)
                 .map(([courseClass, count]) => {
@@ -99,10 +133,10 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
 const VIEW_INSIGHTS_BUTTON = `
 <div >
  <button
-   title="View Weekly Insights"
+   title="View Insights"
    class="insights-button"
    id="cwu-view-insights-load">
-   View Weekly Insights
+   View Insights
  </button>
 </div>
 `;
@@ -132,8 +166,8 @@ function getEventsForWeek(selectedDate: Date) {
 
 function renderUIDatePicker() {
     return `
-        <div>
-            <p>Select a date to view the insights for that week:</p>
+        <div style="display: flex; flex-direction: column; align-items:center; height:100%">
+            <p style="margin-top: 20px; margin-bottom: 25px">Select a date to view the insights for that week and month:</p>
             <div id="cwu-week-picker"></div>
             <div id="cwu-week-summary"></div>
         </div>
@@ -143,6 +177,8 @@ function renderUIDatePicker() {
 function handleWeekSelection(selectedDate: Date) {
     //selectedDate month/year has to match url param view_start
     const viewStart = new URLSearchParams(window.location.hash).get("view_start");
+    //clear summary before rendering new ones
+    $("#cwu-week-summary").html("");
 
     //if view start month != selected month, navigate to month of selected date
     const selectedMonth = selectedDate.getMonth();
@@ -159,9 +195,9 @@ function handleWeekSelection(selectedDate: Date) {
         }//end to inner if
     }//end to outer if
 
-    const events = getEventsForWeek(selectedDate);
-    const summary = summarizeEventsByCourse(events);
-    const summaryHTML = buildSummaryHTML(summary, selectedDate, "month");
+    const eventsWeekly = getEventsForWeek(selectedDate);
+    const summaryWeekly = summarizeEventsByCourse(eventsWeekly);
+    const summaryHTML = buildSummaryHTML(summaryWeekly, selectedDate, "month");
 
     $("#cwu-week-summary").html(summaryHTML);
 }//end to handleWeekSelection
@@ -170,7 +206,7 @@ function handleInsightsClick() {
     waitForCalendarEvents(() => {
       setTimeout(() => {
         const dialogHTML = renderUIDatePicker();
-        startDialog("Weekly Insights", dialogHTML);
+        startDialog("View Insights", dialogHTML);
         const $picker = $("#cwu-week-picker");
 
         if ($picker.hasClass("hasDatepicker")) {
@@ -214,7 +250,7 @@ function updateButtonVisibility() {
     } 
     else {
       existingButton.remove();  
-      console.log("Not month view. Insights button removed");
+      console.log("Not month view. View Insights button removed");
     }
 }//end to updateButtonVisibility
 
@@ -225,7 +261,6 @@ export function loadInsightsReport() {
 
 /**WEEK VIEW */
 
-//week view (wv) insights button
 const WV_VIEW_INSIGHTS_BUTTON = `
 <div>
     <button 
@@ -233,7 +268,7 @@ const WV_VIEW_INSIGHTS_BUTTON = `
     class="wv-insihgts-button"
     id="cwu-wv-view-insights-load"
     >
-    View Insights for this Week
+    View Weekly Insights
     </button>
 </div>
 `;
@@ -278,8 +313,8 @@ function wvHandleInsightsClick() {
         const summary = summarizeEventsByCourse(events);
         //call buildSummaryHTML pass in summary from summarizeEventsByCourse and selectedDate
         const summaryHTML = buildSummaryHTML(summary, viewStart ? new Date(viewStart) : new Date(), "week");
-        //startDialog with title "Weekly Insights" and content from buildSummaryHTML
-        startDialog("Weekly Insights", summaryHTML);
+        //startDialog with content from buildSummaryHTML
+        startDialog("View Insights", summaryHTML);
       }
       else {
         console.log("No view_start date found in URL");
@@ -308,7 +343,7 @@ function wvUpdateButtonVisibility() {
     } 
     else {
       existingButton.remove();
-      console.log("Not week view. Insights button removed");
+      console.log("Not week view. View Weekly Insights button removed.");
     }
 }//end to wvUpdateButtonVisibility
 
