@@ -62,7 +62,7 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
     
     return `
       ${view === "month" ? 
-        `  <div style="margin-bottom:15px; display: flex; ">
+        `  <div style="margin-top: 20px; margin-bottom:15px; display: flex; gap: 180px">
             <div style="flex:1;">
                <p><strong>${totalWeeklyEvents}</strong> events for week of: <strong>${formatted}</strong></p>
               ${Object.entries(summary)
@@ -106,7 +106,7 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
                   .join("")}
             </div>
         </div>` :
-        `  <div style="margin-bottom:15px;">
+        `  <div style="display: flex; flex-direction: column; align-items:center; height:100%">
             <p><strong>${totalWeeklyEvents}</strong> events for: <strong>${weekTitle}</strong></p>
             ${Object.entries(summary)
                 .sort(([, countA], [, countB]) => countB - countA)
@@ -168,8 +168,8 @@ function getEventsForWeek(selectedDate: Date) {
 
 function renderUIDatePicker() {
     return `
-        <div>
-            <p>Select a date to view the insights for that week:</p>
+        <div style="display: flex; flex-direction: column; align-items:center; height:100%">
+            <p style="margin-top: 20px; margin-bottom: 25px">Select a date to view the insights for that week and month:</p>
             <div id="cwu-week-picker"></div>
             <div id="cwu-week-summary"></div>
         </div>
@@ -206,7 +206,7 @@ function handleInsightsClick() {
     waitForCalendarEvents(() => {
       setTimeout(() => {
         const dialogHTML = renderUIDatePicker();
-        startDialog("Weekly Insights", dialogHTML);
+        startDialog("View Insights", dialogHTML);
         const $picker = $("#cwu-week-picker");
 
         if ($picker.hasClass("hasDatepicker")) {
