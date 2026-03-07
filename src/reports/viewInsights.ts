@@ -34,7 +34,7 @@ function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
     return summary;
 }//end to summarizeEventsByCourse
 
-function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date) {
+function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date, view: string) {
     if (Object.keys(summary).length === 0) {
         return `<p>No events found for the current week.</p>`;
     }
@@ -46,9 +46,10 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
     //formatted DD Month YYYY
     const months: string[] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const formatted = `${selectedWeekSunday.getDate()} ${months[selectedWeekSunday.getMonth()]} ${selectedWeekSunday.getFullYear()}`;
-   
+    
     return `
-        <div style="margin-bottom:15px;">
+      ${view === "month" ? 
+        `  <div style="margin-bottom:15px;">
             <p><strong>${totalEvents}</strong> events for week of: <strong>${formatted}</strong></p>
             ${Object.entries(summary)
                 .sort(([, countA], [, countB]) => countB - countA)
@@ -68,7 +69,29 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
                     `;
                 })
                 .join("")}
-        </div>
+        </div>` :
+        `  <div style="margin-bottom:15px;">
+            <p><strong>${totalEvents}</strong> events for this week:</strong></p>
+            ${Object.entries(summary)
+                .sort(([, countA], [, countB]) => countB - countA)
+                .map(([courseClass, count]) => {
+                    const course = courses.find(c => courseClass.includes(c.courseId));
+                    const name = course ? course.name : "Unknown Course";
+                    return `
+                        <div style="display:flex; align-items:center; margin-bottom:6px;">
+                            <div class="${courseClass}" style="
+                                width:14px;
+                                height:14px;
+                                margin-right:8px;
+                                border-radius:3px;">
+                            </div>
+                            <span>${name}: ${count} event(s)</span>
+                        </div>
+                    `;
+                })
+                .join("")}
+        </div>`
+      }
     `;
 }//end to buildSummaryHTML
 
@@ -112,12 +135,8 @@ function renderUIDatePicker() {
         <div>
             <p>Select a date to view the insights for that week:</p>
             
-            <input 
-                type="text" 
-                id="cwu-week-picker" 
-                placeholder="Click to select a date"
-                style="padding:6px; width:200px;"
-            />
+           <div id="cwu-week-picker"></div>
+         
 
             <div id="cwu-week-summary"></div>
         </div>
@@ -145,7 +164,7 @@ function handleWeekSelection(selectedDate: Date) {
 
     const events = getEventsForWeek(selectedDate);
     const summary = summarizeEventsByCourse(events);
-    const summaryHTML = buildSummaryHTML(summary, selectedDate);
+    const summaryHTML = buildSummaryHTML(summary, selectedDate, "month");
 
     $("#cwu-week-summary").html(summaryHTML);
 }//end to handleWeekSelection
@@ -155,7 +174,6 @@ function handleInsightsClick() {
       setTimeout(() => {
         const dialogHTML = renderUIDatePicker();
         startDialog("Weekly Insights", dialogHTML);
-
         const $picker = $("#cwu-week-picker");
 
         if ($picker.hasClass("hasDatepicker")) {
@@ -165,13 +183,15 @@ function handleInsightsClick() {
         $("#ui-datepicker-div").hide();
 
         $picker.datepicker({
-          showOn: "focus",
+          showOn: "button",
+          buttonText: "Select Date",
           onSelect: function (dateText: string) {
             handleWeekSelection(new Date(dateText));
           }
         });
-
-        $picker.blur();
+        setTimeout(() => {
+          $picker.blur();
+        }, 0);
       }, 200);//end to setTimeout
     });//end to waitForCalendarEvents
 }//end to handleInsightsClick
@@ -194,7 +214,7 @@ function updateButtonVisibility() {
       }
     } 
     else {
-      existingButton.remove();
+      existingButton.remove();  
       console.log("Not month view. Insights button removed");
     }
 }//end to updateButtonVisibility
@@ -230,42 +250,35 @@ function wvWaitForEvents(callback: { (): void; (): void; }) {
 }//end to wvWaitForEvents
 
 //get events for week view
-function wvGetEvents(selectedDate: Date) {
-  const formatted = selectedDate.toISOString().split("T")[0];
+function wvGetEvents() {
   const weekRow = $(`.fc-row.fc-week.fc-widget-content`)[0];
-  console.log('found week rows:', weekRow);
 
   //get all day events
   const allDayEvents = $(weekRow).find(`.fc-day-grid-event`);
-  console.log('found all day events:', allDayEvents);
   
   //get events in time grid
   const timeGrid = $(`.fc-scroller.fc-time-grid-container`);
-  console.log('found time grid:', timeGrid);  
   const timeGridEvents = timeGrid.find(`.fc-time-grid-event`);
-  console.log('found time grid events:', timeGridEvents);
 
   //return all day events and time grid events
   const allEvents = allDayEvents.add(timeGridEvents);
-  console.log('combined events:', allEvents);
   return allEvents;
 
 }//end to wvGetEvents
 
 
 function wvHandleInsightsClick() {
+  $("#ui-datepicker-div").hide();
   wvWaitForEvents(() => {
     setTimeout(() => {
       const viewStart = new URLSearchParams(window.location.hash).get("view_start");
-      const selectedDate = viewStart ? new Date(viewStart) : null;
-      console.log("Selected date from URL:", selectedDate);
-      if(selectedDate){
+      if(viewStart){
         //call wvGetEvents pass in selectedDate
-        const events = wvGetEvents(selectedDate);
+        const events = wvGetEvents();
         //call summarizeEventsByCourse pass in events from wvGetEvents
         const summary = summarizeEventsByCourse(events);
         //call buildSummaryHTML pass in summary from summarizeEventsByCourse and selectedDate
-        const summaryHTML = buildSummaryHTML(summary, selectedDate);
+        const summaryHTML = buildSummaryHTML(summary, viewStart ? new Date(viewStart) : new Date(), "week");
         //startDialog with title "Weekly Insights" and content from buildSummaryHTML
         startDialog("Weekly Insights", summaryHTML);
       }
