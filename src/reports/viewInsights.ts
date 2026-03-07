@@ -134,10 +134,7 @@ function renderUIDatePicker() {
     return `
         <div>
             <p>Select a date to view the insights for that week:</p>
-            
-           <div id="cwu-week-picker"></div>
-         
-
+            <div id="cwu-week-picker"></div>
             <div id="cwu-week-summary"></div>
         </div>
     `;
@@ -184,7 +181,9 @@ function handleInsightsClick() {
 
         $picker.datepicker({
           showOn: "button",
+          
           buttonText: "Select Date",
+          
           onSelect: function (dateText: string) {
             handleWeekSelection(new Date(dateText));
           }
