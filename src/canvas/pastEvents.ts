@@ -17,41 +17,25 @@ export function shadePastEvents() {
         //if calendar renders current month
         if (viewStartMonth === currentMonth) {
             waitForCalendarEvents(() => {
-                //past weeks in current month
-                const pastWeeks = $(".fc-row").filter((_, row) => {
-                    const weekStart = $(row).find(".fc-day[data-date]").first().attr("data-date");
-                    return weekStart !== undefined && weekStart < today;
-                });
+                const weekRows = $(".fc-row.fc-week");
+                // console.log('weekRows', weekRows);
 
-                // console.log('pastWeeks', pastWeeks);
-                //shade all events in past weeks
-                pastWeeks.each((_, week) => {
-                    const events = $(week).find(".fc-content-skeleton tbody tr").find(".fc-event");
+                const currentWeekRow = $(".fc-day.fc-today").closest(".fc-row");
+                const currentWeekInd = weekRows.index(currentWeekRow);
+
+                weekRows.slice(0, currentWeekInd).each((_, week) => {
+                    const events = $(week).find(".fc-content-skeleton tbody tr .fc-event");
                     events.css("opacity", "0.34");
-                });
+                });//end to slice
 
-                //for current week
-                const todayCell = $(`.fc-day.fc-today`);
-                // const todayCellInd = todayCell.index();
-                
-                const weekRow = todayCell.closest(".fc-row");
-                let pastDays = weekRow.find(".fc-day[data-date]").filter((_, el) => {
-                    const date = $(el).attr("data-date");
-                    return date !== undefined && date < today;
-                });
-                
-                //bc of time zone differences 
-                pastDays = pastDays.filter((_, day) => {
-                    //if day includes .fc-today, remove from past days
-                    const isToday = $(day).hasClass("fc-today");
-                    return !isToday; 
-                });
-    
+                const todayCell = $(".fc-day.fc-today");
+                const todayInd = todayCell.index();
+
+                const pastDays = currentWeekRow.find(".fc-day").slice(0, todayInd);
+
                 pastDays.each((_, day) => {
-                    const columnIndex = $(day).index();
-                    const events = weekRow
-                        .find(".fc-content-skeleton tbody tr")
-                        .find(`td:eq(${columnIndex}) .fc-event`);
+                    const columnInd = $(day).index();
+                    const events = currentWeekRow.find(".fc-content-skeleton tbody tr").find(`td:eq(${columnInd}) .fc-event`);
                     events.css("opacity", "0.34");
                 });//end to each
             });//end to waitForCalendarEvents
