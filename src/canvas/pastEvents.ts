@@ -17,6 +17,20 @@ export function shadePastEvents() {
         //if calendar renders current month
         if (viewStartMonth === currentMonth) {
             waitForCalendarEvents(() => {
+                //past weeks in current month
+                const pastWeeks = $(".fc-row").filter((_, row) => {
+                    const weekStart = $(row).find(".fc-day[data-date]").first().attr("data-date");
+                    return weekStart !== undefined && weekStart < today;
+                });
+
+                // console.log('pastWeeks', pastWeeks);
+                //shade all events in past weeks
+                pastWeeks.each((_, week) => {
+                    const events = $(week).find(".fc-content-skeleton tbody tr").find(".fc-event");
+                    events.css("opacity", "0.34");
+                });
+
+                //for current week
                 const todayCell = $(`.fc-day.fc-today`);
                 // const todayCellInd = todayCell.index();
                 
@@ -25,6 +39,7 @@ export function shadePastEvents() {
                     const date = $(el).attr("data-date");
                     return date !== undefined && date < today;
                 });
+                
                 //bc of time zone differences 
                 pastDays = pastDays.filter((_, day) => {
                     //if day includes .fc-today, remove from past days
