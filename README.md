@@ -147,11 +147,9 @@ https://github.com/user-attachments/assets/30226343-8a1f-4e69-9dcc-5bdac6cdd4eb
 
 ## Shaded Past Events
 
-**not yet completed**
-
 While on the month view of Canvas's calendar, past events appear lighter than others because of their lower opacity. The intent behind this feature is for a user to be able to visually distinguish between completed/past assignmnets and events from upcoming ones. It aims to help improve the overall readability of the month view calendar by drawing the user's focus and priority to current tasks.
 
-<img src="docs/marchPastEvents.png" title="March Shaded Past Events" width="600px" height="600px"> 
+<img src="docs/march.png" title="March Shaded Past Events" width="600px" height="600px"> 
 
 <img src="docs/febPastEvents.png" title="February Shaded Past Events" width="600px" height="600px"> 
 
