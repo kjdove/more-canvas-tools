@@ -62,7 +62,7 @@ function decodeHtml(str: string | null) {
 
 export function shadePastEvents() {
 
-    waitForCalendarEvents(() => {
+    waitForCalendarEvents(async () => {
         const today = new Date().toISOString().split("T")[0];
         const currentMonth = today.slice(0, 7);
         const viewStart = window.location.hash.split("view_start=")[1]?.split("&")[0];
@@ -70,89 +70,79 @@ export function shadePastEvents() {
     
         //if calendar renders current month
         if (viewStartMonth === currentMonth) {
-            waitForCalendarEvents(async () => {
-                let userEvents, plannerEvents, courseEvents;
-                ({userEvents, plannerEvents, courseEvents} = await fetchCalendarEvents());
+            const todayDate = new Date();
+            todayDate.setHours(0,0,0,0);
+            let userEvents, plannerEvents, courseEvents;
+            ({userEvents, plannerEvents, courseEvents} = await fetchCalendarEvents());
 
-                const calEvents = $(".fc-content-skeleton tbody tr").find(".fc-event").toArray();
+            const calEvents = $(".fc-content-skeleton tbody tr").find(".fc-event").toArray();
 
-                //PAST USER EVENTS
-                // console.log('userevents', userEvents);
-                const pastUser = userEvents.filter((event: any) => {
-                    const endDate = event.end_at 
-                        ? event.end_at.split("T")[0] 
-                        : event.due_at 
-                            ? event.due_at.split("T")[0] 
-                            : null;
-                    return endDate && endDate <= today;
-                });
-                pastUser.forEach((pastUserEvent: any) => {  
-                    const matchingCalEvents = calEvents.filter(calEvent => calEvent.getAttribute("title") === pastUserEvent.title);
-                    $(matchingCalEvents).css("opacity", "0.34");
-                });
-
-                 //PAST PLANNER EVENTS
-                const pastPlanner = plannerEvents.filter((event: any) => {
-                    const endDate = event.end_at 
-                        ? event.end_at.split("T")[0] 
-                        : event.todo_date 
-                            ? event.todo_date.split("T")[0] 
-                            : null;
-                    return endDate && endDate < today;
-                });
-                pastPlanner.forEach((pastPlannerEvent: any) => {
-                    const matchingCalEvents = calEvents.filter(calEvent => calEvent.getAttribute("title") === pastPlannerEvent.title);
-                    $(matchingCalEvents).css("opacity", "0.34");
-                });
-
-                //PAST COURSE EVENTS
-                const pastCourse = Object.values(courseEvents).flat().filter((event: any) => {
-                    const duedate = event.due_at ? event.due_at.split("T")[0] : null;
-                    return duedate && duedate < today;
-                });
+            //PAST USER EVENTS
+            // console.log('userevents', userEvents);
+            // const pastUser = userEvents.filter((event: any) => {
+            //     const endDate = event.end_at 
+            //         ? event.end_at.split("T")[0] 
+            //         : event.due_at 
+            //             ? event.due_at.split("T")[0] 
+            //             : null;
+            //     return endDate && endDate < today;
+            // });
+            const pastUser = userEvents.filter((event: any) => {
+                const endDateStr = event.end_at || event.due_at;
+                if (!endDateStr) return false;
             
-                pastCourse.forEach((pastCourseEvent: any) => {
-                    const targetTitle = pastCourseEvent.name.trim();
-                    const matchingCalEvents = calEvents.filter(calEvent => {
-                        const rawTitle = calEvent.getAttribute("title");
-                        const decodedTitle = decodeHtml(rawTitle).trim();
-                        return decodedTitle === targetTitle;
-                    });                
-                    $(matchingCalEvents).css("opacity", "0.34");
-                });
-                
-                // const weekRows = $(".fc-row.fc-week");
-                // // console.log('weekRows', weekRows);
+                const endDate = new Date(endDateStr);
+                endDate.setHours(0,0,0,0);
+            
+                return endDate < todayDate;
+            });
+            pastUser.forEach((pastUserEvent: any) => {  
+                const matchingCalEvents = calEvents.filter(calEvent => calEvent.getAttribute("title") === pastUserEvent.title);
+                $(matchingCalEvents).css("opacity", "0.34");
+            });
 
-                // const currentWeekRow = $(".fc-day.fc-today").closest(".fc-row");
-                // const currentWeekInd = weekRows.index(currentWeekRow);
+            //PAST PLANNER EVENTS
+            // const pastPlanner = plannerEvents.filter((event: any) => {
+            //     const endDate = event.end_at 
+            //         ? event.end_at.split("T")[0] 
+            //         : event.todo_date 
+            //             ? event.todo_date.split("T")[0] 
+            //             : null;
+            //     return endDate && endDate < today;
+            // });
+            const pastPlanner = plannerEvents.filter((event: any) => {
+                const endDateStr = event.end_at || event.todo_date;
+                if (!endDateStr) return false;
+            
+                const endDate = new Date(endDateStr);
+                endDate.setHours(0,0,0,0);
+            
+                return endDate < todayDate;
+            });
+            pastPlanner.forEach((pastPlannerEvent: any) => {
+                const matchingCalEvents = calEvents.filter(calEvent => calEvent.getAttribute("title") === pastPlannerEvent.title);
+                $(matchingCalEvents).css("opacity", "0.34");
+            });
 
-                // weekRows.slice(0, currentWeekInd).each((_, week) => {
-                //     const events = $(week).find(".fc-content-skeleton tbody tr .fc-event");
-                //     events.css("opacity", "0.34");
-                // });//end to slice
-
-                // const todayCell = $(".fc-day.fc-today");
-                // const todayInd = todayCell.index();
-
-                // const pastDays = currentWeekRow.find(".fc-day").slice(0, todayInd);
-                // // console.log('pastDays', pastDays);
-                // // console.log('currentWeekRow', currentWeekRow.find(".fc-content-skeleton tbody tr"));
-
-                // pastDays.each((_, day) => {
-                //     const columnInd = $(day).index();
-                //     const events = currentWeekRow.find(".fc-content-skeleton tbody tr").map((_, tr) => {
-                //         const cell = $(tr).children("td");
-                //         // console.log('cell', cell);
-                      
-                //         const events = cell.find(".fc-event").toArray();
-                //         // console.log('events', events);
-                //         return events;
-                //     });
-                //     $(events).css("opacity", "0.34");
-                // });//end to each
-               
-            });//end to waitForCalendarEvents
+            //PAST COURSE EVENTS
+            const pastCourse = Object.values(courseEvents).flat().filter((event: any) => {
+                if (!event.due_at) return false;
+        
+                const dueDate = new Date(event.due_at);
+                dueDate.setHours(0,0,0,0);
+        
+                return dueDate < todayDate;
+        });
+        
+            pastCourse.forEach((pastCourseEvent: any) => {
+                const targetTitle = pastCourseEvent.name.trim();
+                const matchingCalEvents = calEvents.filter(calEvent => {
+                    const rawTitle = calEvent.getAttribute("title");
+                    const decodedTitle = decodeHtml(rawTitle).trim();
+                    return decodedTitle === targetTitle;
+                });                
+                $(matchingCalEvents).css("opacity", "0.34");
+            });
         }//end to if
     
         //else if calendar renders a past month, shade all events
