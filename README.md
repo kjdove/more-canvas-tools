@@ -25,7 +25,7 @@ We are always working on new features, but here's what we have so far:
 3. [Spread Grade](#spread-grade): A particular tool for the speedgrader that replicates grades to other group members (based on email addresses found in the submitted Word document). Mostly only for courses that use Word Documents.
 4. [List Ungraded Submissions](#list-ungraded-submissions): A tool to list all ungraded submissions in a course.
 5. [List Recently Enrolled Users](#list-recently-enrolled-users): A tool to list all users who have recently enrolled in a course.
-6. [Weekly Insights](#weekly-insights): A tool to view insights on a user's courses and personal calendar for a selected week.
+6. [View Insights](#view-insights): A tool to view insights on a user's courses and personal calendar for a selected week and month.
 7. [Resizable Event Modal Form](#resizable-event-modal-form): To be able to better view already created events and assignments when making or editing an event.
 8. [Shaded Past Events](#shaded-past-events): To visually distinguish past events and assignments from upcoming ones. 
 
@@ -125,13 +125,21 @@ The `Save Draft` and `Load Draft` buttons allow you to store/restore the current
 
 Finally, the `Preview and Publish Dates to Course` button will take the contents of the preview area and check how they will be applied to this course. It will show you a list of assignments that will be updated, and then you can click the `Apply Changes` button to actually apply the changes. This will update the assignments in the course with the new dates. Or you can click `Cancel Changes` to go back to editing the dates.
 
-## Weekly Insights
-While on the month view of Canvas's calendar, a blue `View Weekly Insights` button is rendered on the left side of the calendar header, below the navigator buttons. When the button is clicked, a dialog will appear that prompts the user to select a date in order to view the insights for that week. The date can be selected by clicking on the input box below this prompt. Once it is clicked, a date picker will be displayed. Users have the ability to select a day from the current month as well as to choose from past and future months.
+## View Insights
+While on the month view of Canvas's calendar, a blue `View Insights` button is rendered on the left side of the calendar header, below the navigator buttons. When the button is clicked, a dialog will appear that prompts the user to select a date in order to view the insights for the selected week and month. The date can be selected by clicking on corresponding day on the date picker. Users have the ability to select a day from the current month as well as to choose from past and future months.
 
-Once a date has been selected, a summary of that week's events from the user's personal and course calendars is displayed. Users can close the insights dialog by clicking on the `x` in the top right corner of the dialog's header. 
+Once a date has been selected, a summary of that week's events from the user's personal and course calendars is displayed along with the total events for that month. Users can close the insights dialog by clicking on the `x` in the top right corner of the dialog's header. 
 
 
-https://github.com/user-attachments/assets/1d1b23d9-931e-461a-81d7-1c221e947a0e
+https://github.com/user-attachments/assets/ab16482e-08f6-4c7d-b0db-00a41f67e0f7
+
+While on the week view of Canvas's calendar, a blue `View Weekly Insights` button is rendered on the left side of the calendar header, below the navigator buttons. When the button is clicked, a dialog will appear with the insights for the current week that is rendered. Users can view different weeks by using Canvas's navigation buttons above the insights button; the insights dialog must be closed and the insihgts button must be reclicked after a new week has been selected to view the insights for that week.
+
+
+
+https://github.com/user-attachments/assets/56ab8ca2-f83b-4883-ad9b-ea43695df044
+
+
 
 
 ## Resizable Event Modal Form
