@@ -8,7 +8,7 @@ import { waitForCalendarEvents, getSelectedCourses } from "src/reports/viewInsig
 function getIds() {
     const selectedCourses = getSelectedCourses();
     return selectedCourses.map(course => course.courseId);
-}
+}//end to getIds
 
 async function fetchCalendarEvents() {
     //get ids
@@ -26,16 +26,12 @@ async function fetchCalendarEvents() {
     const start_date = currentMonth + "-01";
     const userEventsFetch = await fetch(`/api/v1/users/${formattedUserId}/calendar_events?start_date=${start_date}&per_page=100`);
     const userEvents = await userEventsFetch.json();
-    // console.log(`User events fetch for user ${user_id}:`, userEvents);
 
     //get planner events/notes
     const plannerEventsFetch = await fetch(`/api/v1/planner_notes?start_date=${start_date}&per_page=100`);
     const plannerEvents = await plannerEventsFetch.json();
-    // console.log(`Planner events fetch:`, plannerEvents);
-
 
     //get course events
-    // const courseEvents: { [key: string]: any } = {};
     const courseFetches = formattedCourseIds.map(id =>
         fetch(`/api/v1/courses/${id}/assignments?start_date=${start_date}&per_page=100`)
             .then(res => res.json())
@@ -131,10 +127,10 @@ export function shadePastEvents() {
             const events = $(".fc-content-skeleton tbody tr").find(".fc-event");
             events.css("opacity", "0.34");
         }//end to else if
-    
     });//end to waitForCalendarEvents
 }//end to shadePastEvents
 
+//if an event is added, edited, or deleted, readd shading
 let lastCalendarContent = "";
 function applyShading() {
     const calendarHtml = $(".fc-content-skeleton").html();
