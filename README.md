@@ -151,7 +151,7 @@ While on the month view of Canvas's calendar, past events appear lighter than ot
 
 <img src="docs/march.png" title="March Shaded Past Events" width="600px" height="600px"> 
 
-<img src="docs/febPastEvents.png" title="February Shaded Past Events" width="600px" height="600px"> 
+<img src="docs/feb.png" title="February Shaded Past Events" width="600px" height="600px"> 
 
 ## Development Environment Installation
 
