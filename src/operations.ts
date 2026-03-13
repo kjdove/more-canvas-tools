@@ -11,6 +11,7 @@ import { injectSearchButton } from "./utilities/search_menu";
 import { injectBulkAssignmentDatesButton } from "./utilities/bulk_dates_csv";
 import { loadInsightsReport, wvLoadInsightsReport } from "./reports/viewInsights";
 import { loadPastEventsShading } from "./canvas/pastEvents";
+import { loadScrollToNowLine } from "./canvas/scrollNowLine";
 
 const OPERATIONS: ReadonlyArray<Operation<any>> = [
     operation({
@@ -131,6 +132,16 @@ const OPERATIONS: ReadonlyArray<Operation<any>> = [
             loadPastEventsShading();
         }
     }),
+    operation({
+        description: "scroll to nowline when current week view calendar is loaded",
+        condition: () => window.location.pathname.includes('/calendar'),
+        dependencies: {
+            calendarContainer: ".fc-view-container"
+        },
+        action: () => {
+            loadScrollToNowLine();
+        }
+    })
  
 ];
 
