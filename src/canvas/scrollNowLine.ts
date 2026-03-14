@@ -4,7 +4,6 @@
  */
 
 function scrollToNowLine() {
-    // const currentWeek = 
     const isWeekView =
         window.location.pathname.includes('/calendar') &&
         window.location.hash.includes('view_name=week');
@@ -13,10 +12,7 @@ function scrollToNowLine() {
     if(isWeekView){
         setTimeout(() => {
             const nowline = $(`.calendar-nowline`);
-            // console.log('found nowline', nowline.position());
-            // console.log('nowline ', nowline.get(0));    
             const scrollContent = $(`.fc-scroller.fc-time-grid-container`);
-            // console.log('found scroll content', scrollContent);
 
             if(nowline.length && scrollContent.length){
                 const offset = nowline.position()?.top ?? 0;
@@ -25,7 +21,7 @@ function scrollToNowLine() {
                     scrollTop: offset - scHeight / 2
                     }, 400);
             }//end to if
-        }, 300)//wait for the week view to be rendered
+        }, 300)//end setTimeout, wait for the week view to be rendered
     }//end to if week view
 
 }//end to scrollToNowLine
@@ -38,7 +34,6 @@ export function loadScrollToNowLine() {
         setInterval(() => {
             if (window.location.hash !== lastHash) {
               lastHash = window.location.hash;
-              console.log("hash changed", lastHash);
               scrollToNowLine();
             }
           }, 200);
