@@ -56,7 +56,7 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
     const urlMonth = new URLSearchParams(window.location.hash).get("view_start")?.split("-")[1];
     const formattedMonth = months[urlMonth ? parseInt(urlMonth) - 1 : selectedDate.getMonth()];
 
-    const weekTitle = $(`.navigation_title`).text().trim();
+    // const weekTitle = $(`.navigation_title`).text().trim();
     
     return `
       ${view === "month" ? 
@@ -105,7 +105,6 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
             </div>
         </div>` :
         `  <div style="display: flex; flex-direction: column; align-items:center; height:100%">
-            <p><strong>${totalWeeklyEvents}</strong> events for: <strong>${weekTitle}</strong></p>
             ${Object.entries(summary)
                 .sort(([, countA], [, countB]) => countB - countA)
                 .map(([courseClass, count]) => {
@@ -300,29 +299,110 @@ function wvGetEvents() {
 
 }//end to wvGetEvents
 
+function changeWeek(offset: number) {
+  const viewStart =  new URLSearchParams(window.location.hash).get("view_start");
 
-function wvHandleInsightsClick() {
-  $("#ui-datepicker-div").hide();
+  if (!viewStart) return;
+
+  const date = new Date(viewStart);
+  date.setDate(date.getDate() + offset);
+
+  const newViewStart = date.toISOString().split("T")[0];
+
+  window.location.hash = `view_name=week&view_start=${newViewStart}`;
+
   wvWaitForEvents(() => {
     setTimeout(() => {
-      const viewStart = new URLSearchParams(window.location.hash).get("view_start");
-      if(viewStart){
-        //call wvGetEvents pass in selectedDate
-        const events = wvGetEvents();
-        //call summarizeEventsByCourse pass in events from wvGetEvents
-        const summary = summarizeEventsByCourse(events);
-        //call buildSummaryHTML pass in summary from summarizeEventsByCourse and selectedDate
-        const summaryHTML = buildSummaryHTML(summary, viewStart ? new Date(viewStart) : new Date(), "week");
-        //startDialog with content from buildSummaryHTML
-        startDialog("View Insights", summaryHTML);
-      }
-      else {
-        console.log("No view_start date found in URL");
-      }
-
+      renderWeekInsights();
     }, 200);
-  })//end to wvWaitForEvents
+  });
+}//end to changeWeek
+
+function renderWeekHeaderHTML(summary: { [key: string]: number }) {
+  const weekTitle = $(".navigation_title").text().trim();
+
+  const totalWeeklyEvents = Object.values(summary)
+    .reduce((sum, count) => sum + count, 0);
+
+  return `
+    <p style="text-align:center;">
+      <strong>${totalWeeklyEvents}</strong> events for:
+      <button id="insights-prev-week">◀</button>
+      <strong>${weekTitle}</strong>
+      <button id="insights-next-week">▶</button>
+    </p>
+  `;
+}//end to renderWeekHeaderHTML
+
+function renderWeekInsights() {
+  const viewStart = new URLSearchParams(window.location.hash).get("view_start");
+  if (!viewStart) return;
+
+  const events = wvGetEvents();
+  const summary = summarizeEventsByCourse(events);
+
+  const summaryHTML = buildSummaryHTML(summary, new Date(viewStart), "week");
+  const headerHTML = renderWeekHeaderHTML(summary);
+
+  const fullHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; height:100%">
+      ${headerHTML}
+      <div style="margin-top:20px; display:flex; gap:180px">
+        <div style="flex:1;">
+          ${summaryHTML}
+        </div>
+      </div>
+    </div>
+  `;
+
+  $("#cwu-week-summary").html(fullHTML);
+  $("#insights-prev-week").on("click", () => changeWeek(-7));
+  $("#insights-next-week").on("click", () => changeWeek(7));
+}//end to renderWeekInsights
+
+function wvHandleInsightsClick() {
+  wvWaitForEvents(() => {
+    setTimeout(() => {
+      startDialog(
+        "View Insights",
+        `<div id="cwu-week-summary"></div>`
+      );
+      renderWeekInsights();
+    }, 200);
+  });
 }//end to wvHandleInsightsClick
+
+// function wvHandleInsightsClick() {
+//   wvWaitForEvents(() => {
+//     setTimeout(() => {
+//       const viewStart = new URLSearchParams(window.location.hash).get("view_start");
+//       if(viewStart){
+//         //call wvGetEvents pass in selectedDate
+//         const events = wvGetEvents();
+//         //call summarizeEventsByCourse pass in events from wvGetEvents
+//         const summary = summarizeEventsByCourse(events);
+//         //call buildSummaryHTML pass in summary from summarizeEventsByCourse and selectedDate
+//         const summaryHTML = buildSummaryHTML(summary, viewStart ? new Date(viewStart) : new Date(), "week");
+//         const headerHTML = renderWeekHeaderHTML(summary);
+//         const fullHTML = `
+//           <div style="display: flex; flex-direction: column; align-items:center; height:100%">
+//             ${headerHTML}
+//             <div style="margin-top: 20px; display: flex; gap: 180px">
+//               <div style="flex:1;">
+//                 ${summaryHTML}
+//               </div>
+//             </div>
+//           </div>
+//         `;
+//         //startDialog with content from buildSummaryHTML
+//         startDialog("View Insights", fullHTML);
+//       }
+//       else {
+//         console.log("No view_start date found in URL");
+//       }
+//     }, 200);
+//   })//end to wvWaitForEvents
+// }//end to wvHandleInsightsClick
 
 function wvUpdateButtonVisibility() {
     const isWeekView =
