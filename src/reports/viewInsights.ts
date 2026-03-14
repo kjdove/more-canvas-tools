@@ -372,38 +372,6 @@ function wvHandleInsightsClick() {
   });
 }//end to wvHandleInsightsClick
 
-// function wvHandleInsightsClick() {
-//   wvWaitForEvents(() => {
-//     setTimeout(() => {
-//       const viewStart = new URLSearchParams(window.location.hash).get("view_start");
-//       if(viewStart){
-//         //call wvGetEvents pass in selectedDate
-//         const events = wvGetEvents();
-//         //call summarizeEventsByCourse pass in events from wvGetEvents
-//         const summary = summarizeEventsByCourse(events);
-//         //call buildSummaryHTML pass in summary from summarizeEventsByCourse and selectedDate
-//         const summaryHTML = buildSummaryHTML(summary, viewStart ? new Date(viewStart) : new Date(), "week");
-//         const headerHTML = renderWeekHeaderHTML(summary);
-//         const fullHTML = `
-//           <div style="display: flex; flex-direction: column; align-items:center; height:100%">
-//             ${headerHTML}
-//             <div style="margin-top: 20px; display: flex; gap: 180px">
-//               <div style="flex:1;">
-//                 ${summaryHTML}
-//               </div>
-//             </div>
-//           </div>
-//         `;
-//         //startDialog with content from buildSummaryHTML
-//         startDialog("View Insights", fullHTML);
-//       }
-//       else {
-//         console.log("No view_start date found in URL");
-//       }
-//     }, 200);
-//   })//end to wvWaitForEvents
-// }//end to wvHandleInsightsClick
-
 function wvUpdateButtonVisibility() {
     const isWeekView =
       window.location.pathname.includes('/calendar') &&
