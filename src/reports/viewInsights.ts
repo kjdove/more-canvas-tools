@@ -325,11 +325,11 @@ function renderWeekHeaderHTML(summary: { [key: string]: number }) {
     .reduce((sum, count) => sum + count, 0);
 
   return `
-    <p style="text-align:center;">
+    <p style="text-align:center; font-size: 20px;">
       <strong>${totalWeeklyEvents}</strong> events for:
-      <button id="insights-prev-week">◀</button>
+      <button style="border:1px solid #e8eaec; border-radius:3px; margin: 5px;" id="insights-prev-week">&larr;</button>
       <strong>${weekTitle}</strong>
-      <button id="insights-next-week">▶</button>
+      <button style="border:1px solid #e8eaec; border-radius:3px; margin: 5px;" id="insights-next-week">&rarr;</button>
     </p>
   `;
 }//end to renderWeekHeaderHTML
