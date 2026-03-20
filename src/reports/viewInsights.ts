@@ -35,7 +35,7 @@ function summarizeEventsByCourse(events: JQuery<HTMLElement>) {
 }//end to summarizeEventsByCourse
 
 function getEventsForMonth() {  
-  const monthlyEvents = $(`.fc-widget-content`).find(`.fc-day-grid-event`);
+  const monthlyEvents = $(`.fc-content-skeleton tbody tr`).find(`.fc-event`);
   return monthlyEvents;
 }//end to getEventsForMonth
 
@@ -55,8 +55,6 @@ function buildSummaryHTML(summary: { [key: string]: number }, selectedDate: Date
 
     const urlMonth = new URLSearchParams(window.location.hash).get("view_start")?.split("-")[1];
     const formattedMonth = months[urlMonth ? parseInt(urlMonth) - 1 : selectedDate.getMonth()];
-
-    // const weekTitle = $(`.navigation_title`).text().trim();
     
     return `
       ${view === "month" ? 
@@ -296,7 +294,6 @@ function wvGetEvents() {
   //return all day events and time grid events
   const allEvents = allDayEvents.add(timeGridEvents);
   return allEvents;
-
 }//end to wvGetEvents
 
 function changeWeek(offset: number) {

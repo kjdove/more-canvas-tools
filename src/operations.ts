@@ -142,7 +142,6 @@ const OPERATIONS: ReadonlyArray<Operation<any>> = [
             loadScrollToNowLine();
         }
     })
- 
 ];
 
 export default OPERATIONS;

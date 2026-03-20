@@ -23,7 +23,6 @@ function scrollToNowLine() {
             }//end to if
         }, 300)//end setTimeout, wait for the week view to be rendered
     }//end to if week view
-
 }//end to scrollToNowLine
 
 export function loadScrollToNowLine() {

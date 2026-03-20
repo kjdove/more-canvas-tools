@@ -31,14 +31,11 @@ async function fetchCalendarEvents() {
     const plannerEventsFetch = await fetch(`/api/v1/planner_notes?start_date=${start_date}&per_page=100`);
     const plannerEvents = await plannerEventsFetch.json();
 
-    //get course events
+    //get course assignments/events
     const courseFetches = formattedCourseIds.map(id =>
-        fetch(`/api/v1/courses/${id}/assignments?start_date=${start_date}&per_page=100`)
-            .then(res => res.json())
+        fetch(`/api/v1/courses/${id}/assignments?start_date=${start_date}&per_page=100`).then(res => res.json())
     );
-    
     const courseResults = await Promise.all(courseFetches);
-    
     const courseEvents: { [key: string]: any } = {};
     course_ids.forEach((courseId, i) => {
         courseEvents[courseId] = courseResults[i];
@@ -76,7 +73,7 @@ export function shadePastEvents() {
                 const rawTitle = el.getAttribute("title");
                 const decodedTitle = decodeHtml(rawTitle).trim();
                 calEventMap.set(decodedTitle, el);
-            });
+            });//end to calEvents
 
             //past user events
             const pastUser = userEvents.filter((event: any) => {
@@ -87,7 +84,7 @@ export function shadePastEvents() {
                 endDate.setHours(0,0,0,0);
             
                 return endDate < todayDate;
-            });
+            });//end to pastUser
 
             //past planner events
             const pastPlanner = plannerEvents.filter((event: any) => {
@@ -98,7 +95,7 @@ export function shadePastEvents() {
                 endDate.setHours(0,0,0,0);
             
                 return endDate < todayDate;
-            });
+            });//end to pastPlanner
 
             //past course events
             const pastCourse = Object.values(courseEvents).flat().filter((event: any) => {
@@ -108,7 +105,7 @@ export function shadePastEvents() {
                 dueDate.setHours(0,0,0,0);
         
                 return dueDate < todayDate;
-            });
+            });//end to pastCourse
 
             //shade past events
             const pastEvents = [
